@@ -55,37 +55,11 @@ def create_files_and_folders(paths, root=None):
 # Add your paths here (relative to project root)
 # ========================
 paths = [
-    
-    "src/components/auth/signup-form.tsx",
-    "src/components/layout/footer.tsx",
-    "src/components/layout/navber/logo.tsx",
-    "src/components/layout/navber/nav-menu.tsx",
-    "src/components/layout/navber/navbar.tsx",
-    "src/components/layout/navber/navigation-menu.tsx",
-    "src/components/layout/navber/navigation-sheet.tsx",
-    "src/components/provider/providers.tsx",
-    "src/components/provider/theme-provider.tsx",
-    "src/components/types/userForm.d.ts",
-    "src/components/ui/alert-dialog.tsx",
-    "src/components/ui/avatar.tsx",
-    "src/components/ui/badge.tsx",
-    "src/components/ui/button.tsx",
-    "src/components/ui/card.tsx",
-    "src/components/ui/dropdown-menu.tsx",
-    "src/components/ui/field.tsx",
-    "src/components/ui/input-group.tsx",
-    "src/components/ui/input.tsx",
-    "src/components/ui/input-group.tsx",
-    "src/components/ui/field.tsx",
-    "src/components/ui/separator.tsx",
-    "src/components/ui/sheet.tsx",
-    "src/components/ui/sonner.tsx",
-    "src/components/ui/textarea.tsx",
-    "src/env.ts",
-    "src/lib/auth-client.ts",
-    "src/lib/utils.ts",
-    "test/admin.ts",
-    "test/proxy.ts",
+ 
+    "src/components/pages/order/orderCart.tsx",
+    "src/components/pages/order/checkOut.tsx",
+    "src/components/pages/order/getMyOrders.tsx"
+    "src/components/ui/radio-group.tsx"
 
 ]
 
