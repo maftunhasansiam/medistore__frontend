@@ -1,0 +1,1329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>CodeMap — medistore__frontend</title>
+<style>
+:root {
+  --bg: #0d0f14;
+  --surface: #13161e;
+  --surface2: #1a1e2a;
+  --surface3: #222636;
+  --border: #2a2f42;
+  --border2: #353c55;
+  --text: #e2e6f3;
+  --text2: #8b93b0;
+  --text3: #555f7a;
+  --accent: #6c8aff;
+  --accent2: #4a6cf7;
+  --red: #ff5a6e;
+  --red-dim: rgba(255,90,110,0.15);
+  --green: #3dd68c;
+  --green-dim: rgba(61,214,140,0.15);
+  --blue: #5bb8ff;
+  --blue-dim: rgba(91,184,255,0.15);
+  --orange: #ff9442;
+  --orange-dim: rgba(255,148,66,0.15);
+  --warn: #ffca3a;
+  --warn-dim: rgba(255,202,58,0.15);
+  --radius: 10px;
+  --card-w: 220px;
+  --font: 'Inter', system-ui, sans-serif;
+  --mono: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── TOP BAR ─────────────────────────────────────────── */
+#topbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px;
+  height: 52px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  z-index: 100;
+}
+
+#topbar .logo {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: -0.3px;
+  white-space: nowrap;
+}
+#topbar .logo span { color: var(--text2); font-weight: 400; font-size: 12px; margin-left: 6px; }
+
+#search-wrap {
+  position: relative;
+  flex: 1;
+  max-width: 280px;
+}
+#search-wrap svg {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0.4;
+}
+#search {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 13px;
+  padding: 6px 10px 6px 32px;
+  outline: none;
+  font-family: var(--font);
+}
+#search:focus { border-color: var(--accent); }
+#search::placeholder { color: var(--text3); }
+
+.btn-group { display: flex; gap: 4px; }
+.tb-btn {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text2);
+  font-size: 12px;
+  padding: 5px 11px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+  transition: all .15s;
+  font-family: var(--font);
+}
+.tb-btn:hover { border-color: var(--border2); color: var(--text); background: var(--surface3); }
+.tb-btn.active { background: var(--accent2); border-color: var(--accent); color: #fff; }
+
+.tb-sep { width: 1px; height: 24px; background: var(--border); margin: 0 4px; }
+
+.stat-chip {
+  font-size: 11px;
+  color: var(--text3);
+  white-space: nowrap;
+}
+.stat-chip b { color: var(--text2); font-weight: 600; }
+
+/* ── LEGEND ──────────────────────────────────────────── */
+.legend {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+}
+.leg-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--text2);
+}
+.leg-dot {
+  width: 20px;
+  height: 2px;
+  border-radius: 2px;
+}
+
+/* ── MAIN LAYOUT ─────────────────────────────────────── */
+#main {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ── SIDEBAR ─────────────────────────────────────────── */
+#sidebar {
+  width: 260px;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  overflow: hidden;
+  transition: width .2s;
+}
+#sidebar.collapsed { width: 0; }
+
+.sidebar-section {
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.sidebar-title {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text3);
+  padding: 10px 14px 6px;
+  font-weight: 600;
+}
+
+/* filters */
+#ext-filters { padding: 6px 14px 10px; display: flex; flex-direction: column; gap: 4px; }
+.ext-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  color: var(--text2);
+  cursor: pointer;
+}
+.ext-row input { accent-color: var(--accent); cursor: pointer; }
+.ext-count {
+  margin-left: auto;
+  font-size: 10px;
+  color: var(--text3);
+  background: var(--surface2);
+  border-radius: 4px;
+  padding: 1px 5px;
+}
+
+/* file inspector */
+#inspector { flex: 1; overflow-y: auto; padding: 10px 14px; }
+#inspector-placeholder {
+  font-size: 12px;
+  color: var(--text3);
+  text-align: center;
+  margin-top: 20px;
+}
+.insp-filename {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  word-break: break-all;
+  margin-bottom: 8px;
+}
+.insp-path {
+  font-size: 10px;
+  color: var(--text3);
+  font-family: var(--mono);
+  margin-bottom: 12px;
+  word-break: break-all;
+}
+.insp-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text2);
+  padding: 3px 0;
+  border-bottom: 1px solid var(--border);
+}
+.insp-row b { color: var(--text); }
+.insp-section-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text3);
+  margin: 12px 0 5px;
+  font-weight: 600;
+}
+.insp-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+.insp-tag {
+  font-size: 10px;
+  font-family: var(--mono);
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--surface2);
+  color: var(--text2);
+  border: 1px solid var(--border);
+}
+.insp-tag.red { background: var(--red-dim); color: var(--red); border-color: rgba(255,90,110,.3); }
+.insp-tag.green { background: var(--green-dim); color: var(--green); border-color: rgba(61,214,140,.3); }
+.insp-tag.blue { background: var(--blue-dim); color: var(--blue); border-color: rgba(91,184,255,.3); }
+.insp-tag.warn { background: var(--warn-dim); color: var(--warn); border-color: rgba(255,202,58,.3); }
+
+/* ── CANVAS AREA ─────────────────────────────────────── */
+#canvas-wrap {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  cursor: grab;
+}
+#canvas-wrap.grabbing { cursor: grabbing; }
+
+#canvas {
+  position: absolute;
+  top: 0; left: 0;
+  transform-origin: 0 0;
+}
+
+/* arrows SVG */
+#arrows-svg {
+  position: absolute;
+  top: 0; left: 0;
+  pointer-events: none;
+  overflow: visible;
+}
+
+/* ── CARDS ───────────────────────────────────────────── */
+.card {
+  position: absolute;
+  width: var(--card-w);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  cursor: pointer;
+  user-select: none;
+  transition: border-color .15s, box-shadow .15s, opacity .2s;
+}
+.card:hover {
+  border-color: var(--border2);
+  box-shadow: 0 4px 20px rgba(0,0,0,.4);
+}
+.card.focused {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(108,138,255,.25);
+  z-index: 10;
+}
+.card.dimmed {
+  opacity: 0.18;
+  pointer-events: none;
+}
+.card.orphan { border-color: rgba(255,148,66,.4); }
+.card.dead-export { border-color: rgba(255,202,58,.35); }
+
+.card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  margin-bottom: 6px;
+}
+.card-icon {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 700;
+  font-family: var(--mono);
+  flex-shrink: 0;
+  letter-spacing: -0.3px;
+}
+.card-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  word-break: break-all;
+  line-height: 1.3;
+}
+.card-dir {
+  font-size: 10px;
+  color: var(--text3);
+  font-family: var(--mono);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  margin-top: 6px;
+}
+.badge {
+  font-size: 9px;
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-weight: 600;
+  letter-spacing: .3px;
+}
+.badge-orphan { background: var(--orange-dim); color: var(--orange); }
+.badge-dead { background: var(--warn-dim); color: var(--warn); }
+
+.card-meta {
+  margin-top: 6px;
+  display: flex;
+  gap: 8px;
+  font-size: 10px;
+  color: var(--text3);
+}
+
+/* Expanded card view */
+.card.expanded {
+  width: 300px;
+  z-index: 20;
+  border-color: var(--accent);
+}
+.card-expanded-body {
+  display: none;
+  margin-top: 8px;
+  border-top: 1px solid var(--border);
+  padding-top: 8px;
+}
+.card.expanded .card-expanded-body { display: block; }
+.exp-section { margin-bottom: 8px; }
+.exp-label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: .8px;
+  color: var(--text3);
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.exp-items { display: flex; flex-wrap: wrap; gap: 3px; }
+.exp-item {
+  font-size: 10px;
+  font-family: var(--mono);
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: var(--surface2);
+  color: var(--text2);
+  border: 1px solid var(--border);
+}
+
+/* ── TOOLTIP / HOVER ─────────────────────────────────── */
+#tooltip {
+  position: fixed;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 12px;
+  pointer-events: none;
+  z-index: 1000;
+  display: none;
+  box-shadow: 0 8px 30px rgba(0,0,0,.5);
+  max-width: 220px;
+}
+.tt-name { font-weight: 600; color: var(--text); margin-bottom: 6px; font-size: 13px; }
+.tt-row { display: flex; justify-content: space-between; gap: 16px; color: var(--text2); font-size: 11px; padding: 2px 0; }
+.tt-row b { color: var(--text); }
+
+/* ── MINIMAP ─────────────────────────────────────────── */
+#minimap-wrap {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  width: 180px;
+  height: 120px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  z-index: 50;
+}
+#minimap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+#minimap canvas { position: absolute; top: 0; left: 0; }
+#minimap-viewport {
+  position: absolute;
+  border: 1.5px solid var(--accent);
+  background: rgba(108,138,255,.08);
+  pointer-events: none;
+}
+
+/* ── STATUS BAR ──────────────────────────────────────── */
+#statusbar {
+  height: 26px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 14px;
+  font-size: 11px;
+  color: var(--text3);
+  flex-shrink: 0;
+}
+#statusbar b { color: var(--text2); }
+#status-msg { margin-left: auto; color: var(--text3); }
+
+/* ── SCROLLBAR ───────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div id="topbar">
+  <div class="logo">⬡ CodeMap <span>{{PROJECT_NAME}}</span></div>
+
+  <div class="tb-sep"></div>
+
+  <div id="search-wrap">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input id="search" type="text" placeholder="Search files…"/>
+  </div>
+
+  <div class="tb-sep"></div>
+
+  <div class="btn-group" id="layout-btns">
+    <button class="tb-btn active" data-layout="force" title="Force-directed layout">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="19" cy="19" r="2"/><path d="M12 7v4m-4.5 6-2-4m13 4-2-4"/></svg>Force
+    </button>
+    <button class="tb-btn" data-layout="grid" title="Grid layout">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Grid
+    </button>
+    <button class="tb-btn" data-layout="tree" title="Tree layout">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18M3 9l9-6 9 6M3 15h18"/></svg>Tree
+    </button>
+  </div>
+
+  <div class="tb-sep"></div>
+
+  <button class="tb-btn" id="btn-sidebar" title="Toggle sidebar">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/></svg>Panel
+  </button>
+  <button class="tb-btn" id="btn-reset" title="Reset view">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>Reset
+  </button>
+  <button class="tb-btn" id="btn-export-png" title="Export as PNG">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>PNG
+  </button>
+  <button class="tb-btn" id="btn-export-svg" title="Export as SVG">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>SVG
+  </button>
+
+  <div class="tb-sep"></div>
+
+  <div class="legend">
+    <div class="leg-item"><div class="leg-dot" style="background:var(--red)"></div>Import</div>
+    <div class="leg-item"><div class="leg-dot" style="background:var(--green)"></div>Component</div>
+    <div class="leg-item"><div class="leg-dot" style="background:var(--blue)"></div>Function</div>
+  </div>
+
+  <div class="tb-sep"></div>
+
+  <div class="stat-chip">
+    <b id="stat-files">0</b> files &nbsp;·&nbsp; <b id="stat-edges">0</b> connections
+  </div>
+</div>
+
+<!-- MAIN -->
+<div id="main">
+
+  <!-- SIDEBAR -->
+  <div id="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-title">File Types</div>
+      <div id="ext-filters"></div>
+    </div>
+    <div class="sidebar-section" style="flex:1;overflow:hidden;display:flex;flex-direction:column;">
+      <div class="sidebar-title">Inspector</div>
+      <div id="inspector">
+        <div id="inspector-placeholder">Click a card to inspect it</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CANVAS -->
+  <div id="canvas-wrap">
+    <div id="canvas">
+      <svg id="arrows-svg"></svg>
+    </div>
+    <!-- MINIMAP -->
+    <div id="minimap-wrap">
+      <div id="minimap">
+        <canvas id="minimap-canvas" width="180" height="120"></canvas>
+        <div id="minimap-viewport"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STATUS BAR -->
+<div id="statusbar">
+  <span>Generated: <b>6/11/2026, 12:44:13 AM</b></span>
+  <span>Path: <b>Z:\ProgrammingHero\AssignMent04\medistore__frontend</b></span>
+  <span id="status-msg">Ready</span>
+</div>
+
+<!-- TOOLTIP -->
+<div id="tooltip"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+//  DATA
+// ═══════════════════════════════════════════════════════
+const GRAPH = {"nodes":[{"id":"eslint.config.mjs","name":"eslint.config.mjs","relativePath":"eslint.config.mjs","dir":".","ext":".mjs","size":528,"lines":20,"imports":[],"exports":[],"components":[],"functionCalls":["defineConfig","globalIgnores"],"isOrphan":true,"hasUnusedExports":false},{"id":"next.config.ts","name":"next.config.ts","relativePath":"next.config.ts","dir":".","ext":".ts","size":431,"lines":26,"imports":[],"exports":[],"components":[],"functionCalls":[],"isOrphan":true,"hasUnusedExports":false},{"id":"postcss.config.mjs","name":"postcss.config.mjs","relativePath":"postcss.config.mjs","dir":".","ext":".mjs","size":94,"lines":8,"imports":[],"exports":[],"components":[],"functionCalls":[],"isOrphan":true,"hasUnusedExports":false},{"id":"src/actions/user.action.ts","name":"user.action.ts","relativePath":"src/actions/user.action.ts","dir":"src/actions","ext":".ts","size":620,"lines":25,"imports":[],"exports":[],"components":[],"functionCalls":["async","cookies","toString","log","json"],"isOrphan":true,"hasUnusedExports":false},{"id":"src/actions/users.ts","name":"users.ts","relativePath":"src/actions/users.ts","dir":"src/actions","ext":".ts","size":2582,"lines":95,"imports":[],"exports":["getUsers","getUserById","createUser","updateUser","deleteUser"],"components":["User"],"functionCalls":["getUsers","getUserById","createUser","get","stringify","revalidatePath","updateUser","deleteUser","serverFetch"],"isOrphan":false,"hasUnusedExports":true},{"id":"src/app/(admin-dashboard)/admin/dashboard/page.tsx","name":"page.tsx","relativePath":"src/app/(admin-dashboard)/admin/dashboard/page.tsx","dir":"src/app/(admin-dashboard)/admin/dashboard","ext":".tsx","size":120,"lines":7,"imports":[],"exports":[],"components":[],"functionCalls":[],"isOrphan":true,"hasUnusedExports":false},{"id":"src/app/(admin-dashboard)/admin/page.tsx","name":"page.tsx","relativePath":"src/app/(admin-dashboard)/admin/page.tsx","dir":"src/app/(admin-dashboard)/admin","ext":".tsx","size":120,"lines":7,"imports":[],"exports":[],"components":[],"functionCalls":[],"isOrphan":true,"hasUnusedExports":false},{"id":"src/app/(admin-dashboard)/layout.tsx","name":"layout.tsx","relativePath":"src/app/(admin-dashboard)/layout.tsx","dir":"src/app/(admin-dashboard)","ext":".tsx","size":179,"lines":8,"imports":[],"exports":[],"components":[],"functionCalls":[],"isOrphan":true,"hasUnusedExports":false},{"id":"src/app/(common)/(auth)/login/page.tsx","name":"page.tsx","relativePath":"src/app/(common)/(auth)/login/page.tsx","dir":"src/app/(common)/(auth)/login","ext":".tsx","size":184,"lines":11,"imports":[],"exports":[],"components":["SignInForm"],"functionCalls":[],"isOrphan":false,"hasUnusedExports":false},{"id":"src/app/(common)/(auth)/logout/page.tsx","name":"page.tsx","relativePath":"src/app/(common)/(auth)/logout/page.tsx","dir":"src/app/(common)/(auth)/logout","ext":".tsx","size":184,"lines":11,"imports":[],"exports":[],"components":["LogoutPage"],"functionCalls":[],"isOrphan":true,"hasUnusedExports":false},{"id":"src/app/(common)/(auth)/register/page.tsx","name":"page.tsx","relativePath":"src/app/(common)/(auth)/register/page.tsx","dir":"src/app/(common)/(auth)/register","ext":".tsx","size":178,"lines":9,"imports":[],"exports":["SignupPage"],"components":["RegisterForm"],"functionCalls":[],"isOrphan":false,"hasUnusedExports":true},{"id":"src/app/(common)/(products)/category/createCategory.tsx","name":"createCategory.tsx","relativePath":"src/app/(common)/(products)/category/createCategory.tsx","dir":"src/app/(common)/(products)/category","ext":".tsx","size":0,"lines":1,"imports":[],"exports":[],"components":[],"functionCalls":[],"isOrphan":true,"hasUnusedExports":false},{"id":"src/app/(common)/(products)/category/page.tsx","name":"page.tsx","relativePath":"src/app/(common)/(products)/category/page.tsx","dir":"src/app/(common)/(products)/category","ext":".tsx","size":423,"lines":17,"imports":[],"exports":[],"components":["CetagoryCard"],"functionCalls":["async","serverFetch","log"],"isOrphan":false,"hasUnusedExports":false},{"id":"src/app/(common)/(products)/create-category/page.tsx","name":"page.tsx","relativePath":"src/app/(common)/(products)/create-category/page.tsx","dir":"src/app/(common)/(products)/create-category","ext":".tsx","size":1084,"lines":32,"imports":[],"exports":["CreateCategoryPage"],"components":["Link","ChevronLeft","CreateCategoryForm"],"functionCalls":[],"isOrphan":false,"hasUnusedExports":true},{"id":"src/app/(common)/(products)/medicines/page.tsx","name":"page.tsx","relativePath":"src/app/(common)/(products)/medicines/page.tsx","dir":"src/app/(common)/(products)/medicines","ext":".tsx","size":169,"lines":9,"imports":[],"exports":[],"components":[],"functionCalls":[],"isOrphan":true,"hasUnusedExports":false},{"id":"src/app/(common)/(products)/products/page.tsx","name":"page.tsx","relativePath":"src/app/(common)/(products)/products/page.tsx","dir":"src/app/(common)/(products)/products","ext":".tsx","size":127,"lines":7,"imports":[],"exports":[],"components":[],"functionCalls":[],"isOrphan":true,"hasUnusedExports":false},{"id":"src/app/(common)/(products)/shop/page.tsx","name":"page.tsx","relativePath":"src/app/(common)/(products)/shop/page.tsx","dir":"src/app/(common)/(products)/shop","ext":".tsx","size":81,"lines":4,"imports":[],"exports":[],"components":[],"functionCalls":[],"isOrphan":true,"hasUnusedExports":false},{"id":"src/app/(common)/layout.tsx","name":"layout.tsx","relativePath":"src/app/(common)/layout.tsx","dir":"src/app/(common)","ext":".tsx","size":432,"lines":18,"imports":[],"exports":["RootLayout"],"components":["ThemeProvider","Navbar","Footer"],"functionCalls":[],"isOrphan":false,"hasUnusedExports":true},{"id":"src/app/(common)/page.tsx","name":"page.tsx","relativePath":"src/app/(common)/page.tsx","dir":"src/app/(common)","ext":".tsx","size":952,"lines":28,"imports":[],"exports":[],"components":["HeroSection","CategoryPage","AddToCartSection","Feature","ProductDetailsPage","OrdersPage","OrderCart","CheckoutPage"],"functionCalls":["async","serverFetch","log"],"isOrphan":false,"hasUnusedExports":false},{"id":"src/app/(seller-dashboard)/dashboard/page.tsx","name":"page.tsx","relativePath":"src/app/(seller-dashboard)/dashboard/page.tsx","dir":"src/app/(seller-dashboard)/dashboard","ext":".tsx","size":106,"lines":7,"imports":[],"exports":[],"components":[],"functionCalls":[],"isOrphan":true,"hasUnusedExports":false},{"id":"src/app/(seller-dashboard)/layout.tsx","name":"layout.tsx","relativePath":"src/app/(seller-dashboard)/layout.tsx","dir":"src/app/(seller-dashboard)","ext":".tsx","size":108,"lines":5,"imports":[],"exports":[],"components":[],"functionCalls":[],"isOrphan":true,"hasUnusedExports":false},{"id":"src/app/actions/user.action.ts","name":"user.action.ts","relativePath":"src/app/actions/user.action.ts","dir":"src/app/actions","ext":".ts","size":0,"lines":1,"imports":[],"exports":[],"components":[],"functionCalls":[],"isOrphan":true,"hasUnusedExports":false},{"id":"src/app/error.tsx","name":"error.tsx","relativePath":"src/app/error.tsx","dir":"src/app","ext":".tsx","size":608,"lines":30,"imports":[],"exports":["Error"],"components":[],"functionCalls":["useEffect","error","segment","reset"],"isOrphan":true,"hasUnusedExports":true},{"id":"src/app/layout.tsx","name":"layout.tsx","relativePath":"src/app/layout.tsx","dir":"src/app","ext":".tsx","size":949,"lines":40,"imports":[],"exports":["metadata","RootLayout"],"components":["ThemeProvider","Toaster"],"functionCalls":[],"isOrphan":false,"hasUnusedExports":true},{"id":"src/app/loading.tsx","name":"loading.tsx","relativePath":"src/app/loading.tsx","dir":"src/app","ext":".tsx","size":112,"lines":4,"imports":[],"exports":["Loading"],"components":[],"functionCalls":[],"isOrphan":true,"hasUnusedExports":true},{"id":"src/components/admin/page.tsx","name":"page.tsx","relativePath":"src/components/admin/page.tsx","dir":"src/components/admin","ext":".tsx","size":1925,"lines":61,"imports":[],"exports":["AdminPage"],"components":["SidebarProvider","AppSidebar","SidebarInset","SidebarTrigger","Separator","Breadcrumb","BreadcrumbList","BreadcrumbItem","BreadcrumbLink","BreadcrumbSeparator","BreadcrumbPage","ProfileCard"],"functionCalls":["var"],"isOrphan":false,"hasUnusedExports":true},{"id":"src/components/app-sidebar.tsx","name":"app-sidebar.tsx","relativePath":"src/components/app-sidebar.tsx","dir":"src/components","ext":".tsx","size":3955,"lines":182,"imports":[],"exports":["AppSidebar"],"components":["Sidebar","SidebarHeader","SidebarMenu","SidebarMenuItem","SidebarMenuButton","Link","GalleryVerticalEnd","SidebarContent","NavMain","SidebarFooter","SidebarOptInForm","SidebarRail"],"functionCalls":[],"isOrphan":false,"hasUnusedExports":true},{"id":"src/components/auth/auth-card.tsx","name":"auth-card.tsx","relativePath":"src/components/auth/auth-card.tsx","dir":"src/components/auth","ext":".tsx","size":426,"lines":18,"imports":[],"exports":["AuthCard"],"components":["Card","CardHeader","CardTitle","CardContent"],"functionCalls":[],"isOrphan":false,"hasUnusedExports":true},{"id":"src/components/auth/logout-dialog.tsx","name":"logout-dialog.tsx","relativePath":"src/components/auth/logout-dialog.tsx","dir":"src/components/auth","ext":".tsx","size":1588,"lines":55,"imports":[],"exports":["LogoutDialog"],"components":["AlertDialog","AlertDialogTrigger","Button","LogOut","AlertDialogContent","AlertDialogHeader","AlertDialogTitle","AlertDialogDescription","AlertDialogFooter","AlertDialogCancel","AlertDialogAction"],"functionCalls":["useState","async","setIsLoading"],"isOrphan":false,"hasUnusedExports":true},{"id":"src/components/auth/signin-form.tsx","name":"signin-form.tsx","relativePath":"src/components/auth/signin-form.tsx","dir":"src/components/auth","ext":".tsx","size":8025,"lines":253,"imports":[],"exports":["authClient","SignInForm"],"components":["Card","CardHeader","CardTitle","CardDescription","CardContent","Field","FieldLabel","Input","FieldError","Link","Button","CardFooter"],"functionCalls":["object","string","email","min","async","stringify","text","parse","error","useRouter","useForm","log","success","reset","push","refresh","preventDefault","stopPropagation","handleSubmit","handleChange","handleGoogleLogin"],"isOrphan":false,"hasUnusedExports":true},{"id":"src/components/auth/signup-form.tsx","name":"signup-form.tsx","relativePath":"src/components/auth/signup-form.tsx","dir":"src/components/auth","ext":".tsx","size":7061,"lines":228,"imports":[],"exports":["RegisterForm"],"components":["Card","CardHeader","CardTitle","CardDescription","CardContent","Field","FieldLabel","Input","FieldError","CardFooter","Button","Link"],"functionCalls":["object","string","min","email","enum","useRouter","useForm","async","log","stringify","text","parse","error","success","reset","push","preventDefault","stopPropagation","handleSubmit","handleChange"],"isOrphan":false,"hasUnusedExports":true},{"id":"src/components/layout/category/createCategory.tsx","name":"createCategory.tsx","relativePath":"src/components/layout/category/createCategory.tsx","dir":"src/components/layout/category","ext":".tsx","size":7167,"lines":229,"imports":[],"exports":["CreateCategoryForm"],"components":["Card","CardHeader","CardTitle","CardDescription","CardContent","FieldGroup","Field","FieldLabel","Input","FieldError","FieldDescription","InputGroup","InputGroupTextarea","InputGroupAddon","InputGroupText","CardFooter","Button","Loader2"],"functionCalls":["object","string","min","max","url","startsWith","optional","or","literal","useRouter","useState","useForm","async","setIsPending","trim","log","clientFetch","stringify","success","reset","refresh","error","preventDefault","handleSubmit","handleChange","link"],"isOrphan":false,"hasUnusedExports":true},{"id":"src/components/layout/footer/footer.tsx","name":"footer.tsx","relativePath":"src/components/layout/footer/footer.tsx","dir":"src/components/layout/footer","ext":".tsx","size":10991,"lines":103,"imports":[],"exports":[],"components":["Link","Separator","CodeXml","Dribbble","Apple","Volleyball"],"functionCalls":["getFullYear"],"isOrphan":false,"hasUnusedExports":false},{"id":"src/components/layout/navber/logo.tsx","name":"logo.tsx","relativePath":"src/components/layout/navber/logo.tsx","dir":"src/components/layout/navber","ext":".tsx","size":7549,"lines":19,"imports":[],"exports":["Logo"],"components":[],"functionCalls":[],"isOrphan":false,"hasUnusedExports":true},{"id":"src/components/layout/navber/nav-menu.tsx","name":"nav-menu.tsx","relativePath":"src/components/layout/navber/nav-menu.tsx","dir":"src/components/layout/navber","ext":".tsx","size":1476,"lines":38,"imports":[],"exports":["NavMenu"],"components":["NavigationMenu","NavigationMenuList","NavigationMenuItem","NavigationMenuLink","Link"],"functionCalls":["navigationMenuTriggerStyle"],"isOrphan":false,"hasUnusedExports":true},{"id":"src/components/layout/navber/navbar.tsx","name":"navbar.tsx","relativePath":"src/components/layout/navber/navbar.tsx","dir":"src/components/layout/navber","ext":".tsx","size":1001,"lines":31,"imports":[],"exports":[],"components":["Logo","NavMenu","Button","NavigationSheet"],"functionCalls":[],"isOrphan":false,"hasUnusedExports":false},{"id":"src/components/layout/navber/navigation-menu.tsx","name":"navigation-menu.tsx","relativePath":"src/components/layout/navber/navigation-menu.tsx","dir":"src/components/layout/navber","ext":".tsx","size":6830,"lines":168,"imports":[],"exports":["NavigationMenu","NavigationMenuList","NavigationMenuItem","NavigationMenuContent","NavigationMenuTrigger","NavigationMenuLink","NavigationMenuIndicator","NavigationMenuViewport","navigationMenuTriggerStyle"],"components":["NavigationMenuPrimitive","NavigationMenuViewport","ChevronDownIcon"],"functionCalls":["cn","cva","navigationMenuTriggerStyle","var","not"],"isOrphan":false,"hasUnusedExports":true},{"id":"src/components/layout/navber/navigation-sheet.tsx","name":"navigation-sheet.tsx","relativePath":"src/components/layout/navber/navigation-sheet.tsx","dir":"src/components/layout/navber","ext":".tsx","size":884,"lines":32,"imports":[],"exports":["NavigationSheet"],"components":["Sheet","VisuallyHidden","SheetTitle","SheetTrigger","Button","Menu","SheetContent","Logo","NavMenu"],"functionCalls":[],"isOrphan":false,"hasUnusedExports":true},{"id":"src/components/nav-main.tsx","name":"nav-main.tsx","relativePath":"src/components/nav-main.tsx","dir":"src/components","ext":".tsx","size":1771,"lines":65,"imports":[],"exports":["NavMain"],"components":["SidebarGroup","SidebarMenu","DropdownMenu","SidebarMenuItem","DropdownMenuTrigger","SidebarMenuButton","MoreHorizontal","DropdownMenuContent","DropdownMenuItem"],"functionCalls":["useSidebar"],"isOrphan":false,"hasUnusedExports":true},{"id":"src/components/pages/home/category.tsx","name":"category.tsx","relativePath":"src/components/pages/home/category.tsx","dir":"src/components/pages/home","ext":".tsx","size":1771,"lines":51,"imports":[],"exports":[],"components":["Link","Image"],"functionCalls":["log"],"isOrphan":true,"hasUnusedExports":false},{"id":"src/components/pages/home/feature.tsx","name":"feature.tsx","relativePath":"src/components/pages/home/feature.tsx","dir":"src/components/pages/home","ext":".tsx","size":2545,"lines":83,"imports":[],"exports":[],"components":[],"functionCalls":[],"isOrphan":true,"hasUnusedExports":false},{"id":"src/components/pages/home/hero.tsx","name":"hero.tsx","relativePath":"src/components/pages/home/hero.tsx","dir":"src/components/pages/home","ext":".tsx","size":1871,"lines":45,"imports":[],"exports":["HeroSection"],"components":["Badge","Link","ArrowUpRight","Button","CirclePlay"],"functionCalls":[],"isOrphan":false,"hasUnusedExports":true},{"id":"src/components/pages/order/checkOut.tsx","name":"checkOut.tsx","relativePath":"src/components/pages/order/checkOut.tsx","dir":"src/components/pages/order","ext":".tsx","size":22276,"lines":560,"imports":[],"exports":[],"components":["CheckoutFormData","FieldGroup","Controller","Field","FieldLabel","Input","FieldError","CreditCard","Wallet","Building2","Image","Button"],"functionCalls":["object","string","min","email","enum","optional","superRefine","addIssue","test","zodResolver","toast","stringify","log","setPaymentMethod","setValue","handleSubmit","handlePaymentMethodChange","toFixed"],"isOrphan":false,"hasUnusedExports":false},{"id":"src/components/pages/order/getMyOrders.tsx","name":"getMyOrders.tsx","relativePath":"src/components/pages/order/getMyOrders.tsx","dir":"src/components/pages/order","ext":".tsx","size":3311,"lines":102,"imports":[],"exports":[],"components":["Badge","Button"],"functionCalls":["toFixed"],"isOrphan":false,"hasUnusedExports":false},{"id":"src/components/pages/order/orderCart.tsx","name":"orderCart.tsx","relativePath":"src/components/pages/order/orderCart.tsx","dir":"src/components/pages/order","ext":".tsx","size":4512,"lines":138,"imports":[],"exports":[],"components":["CartProduct","Image","Button","Minus","Plus","Trash"],"functionCalls":["setCart","max","toFixed","handleQuantityChange","handleRemove"],"isOrphan":false,"hasUnusedExports":false},{"id":"src/components/pages/products/productDetails.tsx","name":"productDetails.tsx","relativePath":"src/components/pages/products/productDetails.tsx","dir":"src/components/pages/products","ext":".tsx","size":3030,"lines":100,"imports":[],"exports":[],"components":["Image","Button","Minus","Plus","Heart"],"functionCalls":["setQuantity","max","toFixed","handleQuantityChange"],"isOrphan":false,"hasUnusedExports":false},{"id":"src/components/pages/products/productPage.tsx","name":"productPage.tsx","relativePath":"src/components/pages/products/productPage.tsx","dir":"src/components/pages/products","ext":".tsx","size":3807,"lines":113,"imports":[],"exports":[],"components":["Link","Image","Button","Minus","Plus"],"functionCalls":["setQuantities","max","toFixed","handleQuantityChange"],"isOrphan":false,"hasUnusedExports":false},{"id":"src/components/provider/providers.tsx","name":"providers.tsx","relativePath":"src/components/provider/providers.tsx","dir":"src/components/provider","ext":".tsx","size":0,"lines":1,"imports":[],"exports":[],"components":[],"functionCalls":[],"isOrphan":true,"hasUnusedExports":false},{"id":"src/components/provider/theme-provider.tsx","name":"theme-provider.tsx","relativePath":"src/components/provider/theme-provider.tsx","dir":"src/components/provider","ext":".tsx","size":399,"lines":16,"imports":[],"exports":["ThemeProvider"],"components":["NextThemesProvider"],"functionCalls":[],"isOrphan":false,"hasUnusedExports":true},{"id":"src/components/sidebar-opt-in-form.tsx","name":"sidebar-opt-in-form.tsx","relativePath":"src/components/sidebar-opt-in-form.tsx","dir":"src/components","ext":".tsx","size":551,"lines":20,"imports":[],"exports":["SidebarOptInForm"],"components":["Card","CardHeader","Button","Link"],"functionCalls":[],"isOrphan":false,"hasUnusedExports":true},{"id":"src/components/ui/alert-dialog.tsx","name":"alert-dialog.tsx","relativePath":"src/components/ui/alert-dialog.tsx","dir":"src/components/ui","ext":".tsx","size":5642,"lines":196,"imports":[],"exports":["AlertDialog","AlertDialogAction","AlertDialogCancel","AlertDialogContent","AlertDialogDescription","AlertDialogFooter","AlertDialogHeader","AlertDialogMedia","AlertDialogOverlay","AlertDialogPortal","AlertDialogTitle","AlertDialogTrigger"],"components":["AlertDialogPrimitive","AlertDialogPortal","AlertDialogOverlay","React","Button"],"functionCalls":["cn","calc","not"],"isOrphan":false,"hasUnusedExports":true},{"id":"src/components/ui/avatar.tsx","name":"avatar.tsx","relativePath":"src/components/ui/avatar.tsx","dir":"src/components/ui","ext":".tsx","size":3028,"lines":109,"imports":[],"exports":["Avatar","AvatarImage","AvatarFallback","AvatarBadge","AvatarGroup","AvatarGroupCount"],"components":["AvatarPrimitive"],"functionCalls":["cn"],"isOrphan":false,"hasUnusedExports":true},{"id":"src/components/ui/badge.tsx","name":"badge.tsx","relativePath":"src/components/ui/badge.tsx","dir":"src/components/ui","ext":".tsx","size":1829,"lines":48,"imports":[],"exports":["Badge","badgeVariants"],"components":["Comp"],"functionCalls":["cva","cn","badgeVariants"],"isOrphan":false,"hasUnusedExports":true},{"id":"src/components/ui/breadcrumb.tsx","name":"breadcrumb.tsx","relativePath":"src/components/ui/breadcrumb.tsx","dir":"src/components/ui","ext":".tsx","size":2464,"lines":109,"imports":[],"exports":["Breadcrumb","BreadcrumbList","BreadcrumbItem","BreadcrumbLink","BreadcrumbPage","BreadcrumbSeparator","BreadcrumbEllipsis"],"components":["Comp","ChevronRight","MoreHorizontal"],"functionCalls":["cn"],"isOrphan":false,"hasUnusedExports":true},{"id":"src/components/ui/button.tsx","name":"button.tsx","relativePath":"src/components/ui/button.tsx","dir":"src/components/ui","ext":".tsx","size":2461,"lines":64,"imports":[],"exports":["Button","buttonVariants"],"components":["Comp"],"functionCalls":["cva","not","cn","buttonVariants"],"isOrphan":false,"hasUnusedExports":true},{"id":"src/components/ui/card.tsx","name":"card.tsx","relativePath":"src/components/ui/card.tsx","dir":"src/components/ui","ext":".tsx","size":2077,"lines":92,"imports":[],"exports":["Card","CardHeader","CardFooter","CardTitle","CardAction","CardDescription","CardContent"],"components":[],"functionCalls":["cn"],"isOrphan":false,"hasUnusedExports":true},{"id":"src/components/ui/dropdown-menu.tsx","name":"dropdown-menu.tsx","relativePath":"src/components/ui/dropdown-menu.tsx","dir":"src/components/ui","ext":".tsx","size":8679,"lines":257,"imports":[],"exports":["DropdownMenu","DropdownMenuPortal","DropdownMenuTrigger","DropdownMenuContent","DropdownMenuGroup","DropdownMenuLabel","DropdownMenuItem","DropdownMenuCheckboxItem","DropdownMenuRadioGroup","DropdownMenuRadioItem","DropdownMenuSeparator","DropdownMenuShortcut","DropdownMenuSub","DropdownMenuSubTrigger","DropdownMenuSubContent"],"components":["DropdownMenuPrimitive","CheckIcon","CircleIcon","ChevronRightIcon"],"functionCalls":["cn","not"],"isOrphan":false,"hasUnusedExports":true},{"id":"src/components/ui/field.tsx","name":"field.tsx","relativePath":"src/components/ui/field.tsx","dir":"src/components/ui","ext":".tsx","size":6405,"lines":248,"imports":[],"exports":["Field","FieldLabel","FieldDescription","FieldError","FieldGroup","FieldLegend","FieldSeparator","FieldSet","FieldContent","FieldTitle"],"components":["Label","Separator"],"functionCalls":["cn","cva","fieldVariants","useMemo","values"],"isOrphan":false,"hasUnusedExports":true},{"id":"src/components/ui/input-group.tsx","name":"input-group.tsx","relativePath":"src/components/ui/input-group.tsx","dir":"src/components/ui","ext":".tsx","size":981,"lines":21,"imports":[],"exports":["Input"],"components":[],"functionCalls":["cn"],"isOrphan":false,"hasUnusedExports":true},{"id":"src/components/ui/input.tsx","name":"input.tsx","relativePath":"src/components/ui/input.tsx","dir":"src/components/ui","ext":".tsx","size":1013,"lines":22,"imports":[],"exports":["Input"],"components":[],"functionCalls":["cn"],"isOrphan":false,"hasUnusedExports":true},{"id":"src/components/ui/label.tsx","name":"label.tsx","relativePath":"src/components/ui/label.tsx","dir":"src/components/ui","ext":".tsx","size":633,"lines":24,"imports":[],"exports":["Label"],"components":["LabelPrimitive"],"functionCalls":["cn"],"isOrphan":false,"hasUnusedExports":true},{"id":"src/components/ui/radio-group.tsx","name":"radio-group.tsx","relativePath":"src/components/ui/radio-group.tsx","dir":"src/components/ui","ext":".tsx","size":1507,"lines":44,"imports":[],"exports":["RadioGroup","RadioGroupItem"],"components":["RadioGroupPrimitive","CircleIcon"],"functionCalls":["cn"],"isOrphan":false,"hasUnusedExports":true},{"id":"src/components/ui/select.tsx","name":"select.tsx","relativePath":"src/components/ui/select.tsx","dir":"src/components/ui","ext":".tsx","size":6546,"lines":190,"imports":[],"exports":["Select","SelectContent","SelectGroup","SelectItem","SelectLabel","SelectScrollDownButton","SelectScrollUpButton","SelectSeparator","SelectTrigger","SelectValue"],"components":["SelectPrimitive","ChevronDownIcon","SelectScrollUpButton","SelectScrollDownButton","CheckIcon","ChevronUpIcon"],"functionCalls":["cn","not","var"],"isOrphan":false,"hasUnusedExports":true},{"id":"src/components/ui/separator.tsx","name":"separator.tsx","relativePath":"src/components/ui/separator.tsx","dir":"src/components/ui","ext":".tsx","size":725,"lines":28,"imports":[],"exports":["Separator"],"components":["SeparatorPrimitive"],"functionCalls":["cn"],"isOrphan":false,"hasUnusedExports":true},{"id":"src/components/ui/sheet.tsx","name":"sheet.tsx","relativePath":"src/components/ui/sheet.tsx","dir":"src/components/ui","ext":".tsx","size":4334,"lines":143,"imports":[],"exports":["Sheet","SheetTrigger","SheetClose","SheetContent","SheetHeader","SheetFooter","SheetTitle","SheetDescription"],"components":["SheetPrimitive","SheetPortal","SheetOverlay","XIcon"],"functionCalls":["cn"],"isOrphan":false,"hasUnusedExports":true},{"id":"src/components/ui/sidebar.tsx","name":"sidebar.tsx","relativePath":"src/components/ui/sidebar.tsx","dir":"src/components/ui","ext":".tsx","size":22362,"lines":726,"imports":[],"exports":["Sidebar","SidebarContent","SidebarFooter","SidebarGroup","SidebarGroupAction","SidebarGroupContent","SidebarGroupLabel","SidebarHeader","SidebarInput","SidebarInset","SidebarMenu","SidebarMenuAction","SidebarMenuBadge","SidebarMenuButton","SidebarMenuItem","SidebarMenuSkeleton","SidebarMenuSub","SidebarMenuSubButton","SidebarMenuSubItem","SidebarProvider","SidebarRail","SidebarSeparator","SidebarTrigger","useSidebar"],"components":["SidebarContextProps","SidebarContext","TooltipProvider","Sheet","SheetContent","SheetHeader","SheetTitle","SheetDescription","Button","PanelLeftIcon","Input","Separator","Comp","Tooltip","TooltipTrigger","TooltipContent","Skeleton"],"functionCalls":["useSidebar","useContext","useIsMobile","useState","useCallback","value","setOpenProp","setOpenMobile","setOpen","useEffect","preventDefault","toggleSidebar","addEventListener","removeEventListener","cn","calc","var","spacing","cva","sidebarMenuButtonVariants","useMemo","floor","random"],"isOrphan":false,"hasUnusedExports":true},{"id":"src/components/ui/skeleton.tsx","name":"skeleton.tsx","relativePath":"src/components/ui/skeleton.tsx","dir":"src/components/ui","ext":".tsx","size":287,"lines":13,"imports":[],"exports":["Skeleton"],"components":[],"functionCalls":["cn"],"isOrphan":false,"hasUnusedExports":true},{"id":"src/components/ui/sonner.tsx","name":"sonner.tsx","relativePath":"src/components/ui/sonner.tsx","dir":"src/components/ui","ext":".tsx","size":1072,"lines":40,"imports":[],"exports":["Toaster"],"components":["Sonner","CircleCheckIcon","InfoIcon","TriangleAlertIcon","OctagonXIcon","Loader2Icon"],"functionCalls":["useTheme","var"],"isOrphan":false,"hasUnusedExports":true},{"id":"src/components/ui/textarea.tsx","name":"textarea.tsx","relativePath":"src/components/ui/textarea.tsx","dir":"src/components/ui","ext":".tsx","size":780,"lines":18,"imports":[],"exports":["Textarea"],"components":[],"functionCalls":["cn"],"isOrphan":false,"hasUnusedExports":true},{"id":"src/components/ui/tooltip.tsx","name":"tooltip.tsx","relativePath":"src/components/ui/tooltip.tsx","dir":"src/components/ui","ext":".tsx","size":1951,"lines":61,"imports":[],"exports":["Tooltip","TooltipTrigger","TooltipContent","TooltipProvider"],"components":["TooltipPrimitive","TooltipProvider"],"functionCalls":["cn","calc"],"isOrphan":false,"hasUnusedExports":true},{"id":"src/env.ts","name":"env.ts","relativePath":"src/env.ts","dir":"src","ext":".ts","size":529,"lines":19,"imports":[],"exports":["env"],"components":[],"functionCalls":["ts","createEnv","string","url"],"isOrphan":true,"hasUnusedExports":true},{"id":"src/hooks/use-mobile.ts","name":"use-mobile.ts","relativePath":"src/hooks/use-mobile.ts","dir":"src/hooks","ext":".ts","size":582,"lines":19,"imports":[],"exports":["useIsMobile"],"components":[],"functionCalls":["useIsMobile","useEffect","matchMedia","setIsMobile","addEventListener","removeEventListener"],"isOrphan":false,"hasUnusedExports":true},{"id":"src/lib/auth-client.ts","name":"auth-client.ts","relativePath":"src/lib/auth-client.ts","dir":"src/lib","ext":".ts","size":220,"lines":6,"imports":[],"exports":["authClient"],"components":[],"functionCalls":["createAuthClient"],"isOrphan":true,"hasUnusedExports":true},{"id":"src/lib/fetch/clientFetch.ts","name":"clientFetch.ts","relativePath":"src/lib/fetch/clientFetch.ts","dir":"src/lib/fetch","ext":".ts","size":2599,"lines":99,"imports":[],"exports":["clientFetch"],"components":["T","ClientFetchResponse"],"functionCalls":["error","log","get","includes","json","text"],"isOrphan":false,"hasUnusedExports":false},{"id":"src/lib/fetch/exampleClientFetch.tsx","name":"exampleClientFetch.tsx","relativePath":"src/lib/fetch/exampleClientFetch.tsx","dir":"src/lib/fetch","ext":".tsx","size":4197,"lines":165,"imports":["src/lib/fetch/clientFetch.ts"],"exports":["UsersPage"],"components":["User"],"functionCalls":["useState","useCallback","async","setLoading","setUsers","stringify","alert","confirm","clientFetch","useEffect","fetchUsers","loadUsers","createUser","updateUser","deleteUser"],"isOrphan":false,"hasUnusedExports":false},{"id":"src/lib/fetch/exampleServerFetch.tsx","name":"exampleServerFetch.tsx","relativePath":"src/lib/fetch/exampleServerFetch.tsx","dir":"src/lib/fetch","ext":".tsx","size":1207,"lines":39,"imports":["src/lib/fetch/exampleClientFetch.tsx","src/lib/fetch/serverFetch.ts"],"exports":["AdminUsersPage"],"components":["DeleteButton"],"functionCalls":["serverFetch","stringify"],"isOrphan":false,"hasUnusedExports":true},{"id":"src/lib/fetch/serverFetch.ts","name":"serverFetch.ts","relativePath":"src/lib/fetch/serverFetch.ts","dir":"src/lib/fetch","ext":".ts","size":1606,"lines":67,"imports":[],"exports":["serverFetch"],"components":["T","ServerFetchResponse"],"functionCalls":["cookies","toString","get","includes","json","text","error"],"isOrphan":false,"hasUnusedExports":false},{"id":"src/lib/utils.ts","name":"utils.ts","relativePath":"src/lib/utils.ts","dir":"src/lib","ext":".ts","size":170,"lines":6,"imports":[],"exports":["cn"],"components":[],"functionCalls":["cn","twMerge","clsx"],"isOrphan":false,"hasUnusedExports":true},{"id":"src/schemas/profile.schema.ts","name":"profile.schema.ts","relativePath":"src/schemas/profile.schema.ts","dir":"src/schemas","ext":".ts","size":411,"lines":12,"imports":[],"exports":["profileSchema","ProfileFormType"],"components":[],"functionCalls":["object","string","min","email","url","optional","enum"],"isOrphan":true,"hasUnusedExports":true},{"id":"test/admin.ts","name":"admin.ts","relativePath":"test/admin.ts","dir":"test","ext":".ts","size":6242,"lines":252,"imports":[],"exports":["getAllUsers","updateUserStatus","deleteUser","getAllOrders","getAllCategories","createCategory","updateCategory","deleteCategory"],"components":[],"functionCalls":["getAuthHeaders","cookies","get","getAllUsers","json","log","updateUserStatus","stringify","deleteUser","orders","getAllOrders","getAllCategories","createCategory","updateCategory","deleteCategory"],"isOrphan":false,"hasUnusedExports":true},{"id":"test/codemapo/codemap/bin/codemap.js","name":"codemap.js","relativePath":"test/codemapo/codemap/bin/codemap.js","dir":"test/codemapo/codemap/bin","ext":".js","size":3138,"lines":89,"imports":["test/codemapo/codemap/src/scanner.js","test/codemapo/codemap/src/builder.js"],"exports":[],"components":[],"functionCalls":["slice","includes","log","include","ignore","port","exit","getArg","indexOf","startsWith","resolve","split","trim","join","scanProject","buildHTML","writeFileSync","createServer","writeHead","end","listen","exec"],"isOrphan":false,"hasUnusedExports":false},{"id":"test/codemapo/codemap/src/builder.js","name":"builder.js","relativePath":"test/codemapo/codemap/src/builder.js","dir":"test/codemapo/codemap/src","ext":".js","size":24321,"lines":509,"imports":[],"exports":[],"components":[],"functionCalls":["buildHTML","stringify","basename","rgba","media","var","translateY","repeat","minmax","onSearch","zoom","fitAll","toggleLayout","col","split","pop","toLowerCase","slice","keys","getElementById","getContext","resize","draw","addEventListener","renderSidebar","has","includes","createElement","selectNode","scrollTo","appendChild","renderFilters","entries","sort","add","toggle","updateNodes","renderLegend","updateStats","visibleFiles","gridLayout","max","floor","forceLayout","min","cos","sin","sqrt","rr","beginPath","moveTo","lineTo","quadraticCurveTo","closePath","arrow","stroke","atan2","drawNode","matchMedia","fill","save","clip","fillRect","restore","arc","fillText","replace","measureText","clearRect","translate","scale","hit","preventDefault","querySelectorAll","remove","section","join"],"isOrphan":false,"hasUnusedExports":false},{"id":"test/codemapo/codemap/src/scanner.js","name":"scanner.js","relativePath":"test/codemapo/codemap/src/scanner.js","dir":"test/codemapo/codemap/src","ext":".js","size":6053,"lines":165,"imports":[],"exports":[],"components":[],"functionCalls":["walk","readdirSync","startsWith","join","isDirectory","includes","isFile","split","pop","toLowerCase","push","relative","replace","parseFile","match","trim","slice","exec","byteLength","resolveImport","has","scanProject","readFileSync","add","test"],"isOrphan":false,"hasUnusedExports":false},{"id":"test/proxy.ts","name":"proxy.ts","relativePath":"test/proxy.ts","dir":"test","ext":".ts","size":2557,"lines":87,"imports":[],"exports":["proxy","config"],"components":[],"functionCalls":["proxy","get","startsWith","redirect","json","log","next"],"isOrphan":true,"hasUnusedExports":true}],"edges":[{"from":"src/actions/users.ts","to":"test/admin.ts","type":"function"},{"from":"src/actions/users.ts","to":"src/lib/fetch/serverFetch.ts","type":"function"},{"from":"src/app/(common)/(auth)/login/page.tsx","to":"src/components/auth/signin-form.tsx","type":"component"},{"from":"src/app/(common)/(auth)/register/page.tsx","to":"src/components/auth/signup-form.tsx","type":"component"},{"from":"src/app/(common)/(products)/category/page.tsx","to":"src/lib/fetch/serverFetch.ts","type":"function"},{"from":"src/app/(common)/(products)/create-category/page.tsx","to":"src/components/layout/category/createCategory.tsx","type":"component"},{"from":"src/app/(common)/layout.tsx","to":"src/components/provider/theme-provider.tsx","type":"component"},{"from":"src/app/(common)/page.tsx","to":"src/components/pages/home/hero.tsx","type":"component"},{"from":"src/app/(common)/page.tsx","to":"src/lib/fetch/serverFetch.ts","type":"function"},{"from":"src/app/layout.tsx","to":"src/components/provider/theme-provider.tsx","type":"component"},{"from":"src/app/layout.tsx","to":"src/components/ui/sonner.tsx","type":"component"},{"from":"src/components/admin/page.tsx","to":"src/components/ui/sidebar.tsx","type":"component"},{"from":"src/components/admin/page.tsx","to":"src/components/app-sidebar.tsx","type":"component"},{"from":"src/components/admin/page.tsx","to":"src/components/ui/separator.tsx","type":"component"},{"from":"src/components/admin/page.tsx","to":"src/components/ui/breadcrumb.tsx","type":"component"},{"from":"src/components/app-sidebar.tsx","to":"src/components/ui/sidebar.tsx","type":"component"},{"from":"src/components/app-sidebar.tsx","to":"src/components/nav-main.tsx","type":"component"},{"from":"src/components/app-sidebar.tsx","to":"src/components/sidebar-opt-in-form.tsx","type":"component"},{"from":"src/components/auth/auth-card.tsx","to":"src/components/ui/card.tsx","type":"component"},{"from":"src/components/auth/logout-dialog.tsx","to":"src/components/ui/alert-dialog.tsx","type":"component"},{"from":"src/components/auth/logout-dialog.tsx","to":"src/components/ui/button.tsx","type":"component"},{"from":"src/components/auth/signin-form.tsx","to":"src/components/ui/card.tsx","type":"component"},{"from":"src/components/auth/signin-form.tsx","to":"src/components/ui/field.tsx","type":"component"},{"from":"src/components/auth/signin-form.tsx","to":"src/components/ui/input-group.tsx","type":"component"},{"from":"src/components/auth/signin-form.tsx","to":"src/components/ui/input.tsx","type":"component"},{"from":"src/components/auth/signin-form.tsx","to":"src/components/ui/button.tsx","type":"component"},{"from":"src/components/auth/signup-form.tsx","to":"src/components/ui/card.tsx","type":"component"},{"from":"src/components/auth/signup-form.tsx","to":"src/components/ui/field.tsx","type":"component"},{"from":"src/components/auth/signup-form.tsx","to":"src/components/ui/input-group.tsx","type":"component"},{"from":"src/components/auth/signup-form.tsx","to":"src/components/ui/input.tsx","type":"component"},{"from":"src/components/auth/signup-form.tsx","to":"src/components/ui/button.tsx","type":"component"},{"from":"src/components/layout/category/createCategory.tsx","to":"src/components/ui/card.tsx","type":"component"},{"from":"src/components/layout/category/createCategory.tsx","to":"src/components/ui/field.tsx","type":"component"},{"from":"src/components/layout/category/createCategory.tsx","to":"src/components/ui/input-group.tsx","type":"component"},{"from":"src/components/layout/category/createCategory.tsx","to":"src/components/ui/input.tsx","type":"component"},{"from":"src/components/layout/category/createCategory.tsx","to":"src/components/ui/button.tsx","type":"component"},{"from":"src/components/layout/category/createCategory.tsx","to":"src/lib/fetch/clientFetch.ts","type":"function"},{"from":"src/components/layout/footer/footer.tsx","to":"src/components/ui/separator.tsx","type":"component"},{"from":"src/components/layout/navber/nav-menu.tsx","to":"src/components/layout/navber/navigation-menu.tsx","type":"component"},{"from":"src/components/layout/navber/nav-menu.tsx","to":"src/components/layout/navber/navigation-menu.tsx","type":"function"},{"from":"src/components/layout/navber/navbar.tsx","to":"src/components/layout/navber/logo.tsx","type":"component"},{"from":"src/components/layout/navber/navbar.tsx","to":"src/components/layout/navber/nav-menu.tsx","type":"component"},{"from":"src/components/layout/navber/navbar.tsx","to":"src/components/ui/button.tsx","type":"component"},{"from":"src/components/layout/navber/navbar.tsx","to":"src/components/layout/navber/navigation-sheet.tsx","type":"component"},{"from":"src/components/layout/navber/navigation-menu.tsx","to":"src/lib/utils.ts","type":"function"},{"from":"src/components/layout/navber/navigation-sheet.tsx","to":"src/components/ui/sheet.tsx","type":"component"},{"from":"src/components/layout/navber/navigation-sheet.tsx","to":"src/components/ui/button.tsx","type":"component"},{"from":"src/components/layout/navber/navigation-sheet.tsx","to":"src/components/layout/navber/logo.tsx","type":"component"},{"from":"src/components/layout/navber/navigation-sheet.tsx","to":"src/components/layout/navber/nav-menu.tsx","type":"component"},{"from":"src/components/nav-main.tsx","to":"src/components/ui/sidebar.tsx","type":"component"},{"from":"src/components/nav-main.tsx","to":"src/components/ui/dropdown-menu.tsx","type":"component"},{"from":"src/components/nav-main.tsx","to":"src/components/ui/sidebar.tsx","type":"function"},{"from":"src/components/pages/home/hero.tsx","to":"src/components/ui/badge.tsx","type":"component"},{"from":"src/components/pages/home/hero.tsx","to":"src/components/ui/button.tsx","type":"component"},{"from":"src/components/pages/order/checkOut.tsx","to":"src/components/ui/field.tsx","type":"component"},{"from":"src/components/pages/order/checkOut.tsx","to":"src/components/ui/input-group.tsx","type":"component"},{"from":"src/components/pages/order/checkOut.tsx","to":"src/components/ui/input.tsx","type":"component"},{"from":"src/components/pages/order/checkOut.tsx","to":"src/components/ui/button.tsx","type":"component"},{"from":"src/components/pages/order/getMyOrders.tsx","to":"src/components/ui/badge.tsx","type":"component"},{"from":"src/components/pages/order/getMyOrders.tsx","to":"src/components/ui/button.tsx","type":"component"},{"from":"src/components/pages/order/orderCart.tsx","to":"src/components/ui/button.tsx","type":"component"},{"from":"src/components/pages/products/productDetails.tsx","to":"src/components/ui/button.tsx","type":"component"},{"from":"src/components/pages/products/productPage.tsx","to":"src/components/ui/button.tsx","type":"component"},{"from":"src/components/sidebar-opt-in-form.tsx","to":"src/components/ui/card.tsx","type":"component"},{"from":"src/components/sidebar-opt-in-form.tsx","to":"src/components/ui/button.tsx","type":"component"},{"from":"src/components/ui/alert-dialog.tsx","to":"src/components/ui/button.tsx","type":"component"},{"from":"src/components/ui/alert-dialog.tsx","to":"src/lib/utils.ts","type":"function"},{"from":"src/components/ui/avatar.tsx","to":"src/lib/utils.ts","type":"function"},{"from":"src/components/ui/badge.tsx","to":"src/lib/utils.ts","type":"function"},{"from":"src/components/ui/breadcrumb.tsx","to":"src/lib/utils.ts","type":"function"},{"from":"src/components/ui/button.tsx","to":"src/lib/utils.ts","type":"function"},{"from":"src/components/ui/card.tsx","to":"src/lib/utils.ts","type":"function"},{"from":"src/components/ui/dropdown-menu.tsx","to":"src/lib/utils.ts","type":"function"},{"from":"src/components/ui/field.tsx","to":"src/components/ui/label.tsx","type":"component"},{"from":"src/components/ui/field.tsx","to":"src/components/ui/separator.tsx","type":"component"},{"from":"src/components/ui/field.tsx","to":"src/lib/utils.ts","type":"function"},{"from":"src/components/ui/input-group.tsx","to":"src/lib/utils.ts","type":"function"},{"from":"src/components/ui/input.tsx","to":"src/lib/utils.ts","type":"function"},{"from":"src/components/ui/label.tsx","to":"src/lib/utils.ts","type":"function"},{"from":"src/components/ui/radio-group.tsx","to":"src/lib/utils.ts","type":"function"},{"from":"src/components/ui/select.tsx","to":"src/lib/utils.ts","type":"function"},{"from":"src/components/ui/separator.tsx","to":"src/lib/utils.ts","type":"function"},{"from":"src/components/ui/sheet.tsx","to":"src/lib/utils.ts","type":"function"},{"from":"src/components/ui/sidebar.tsx","to":"src/components/ui/tooltip.tsx","type":"component"},{"from":"src/components/ui/sidebar.tsx","to":"src/components/ui/sheet.tsx","type":"component"},{"from":"src/components/ui/sidebar.tsx","to":"src/components/ui/button.tsx","type":"component"},{"from":"src/components/ui/sidebar.tsx","to":"src/components/ui/input-group.tsx","type":"component"},{"from":"src/components/ui/sidebar.tsx","to":"src/components/ui/input.tsx","type":"component"},{"from":"src/components/ui/sidebar.tsx","to":"src/components/ui/separator.tsx","type":"component"},{"from":"src/components/ui/sidebar.tsx","to":"src/components/ui/skeleton.tsx","type":"component"},{"from":"src/components/ui/sidebar.tsx","to":"src/hooks/use-mobile.ts","type":"function"},{"from":"src/components/ui/sidebar.tsx","to":"src/lib/utils.ts","type":"function"},{"from":"src/components/ui/skeleton.tsx","to":"src/lib/utils.ts","type":"function"},{"from":"src/components/ui/textarea.tsx","to":"src/lib/utils.ts","type":"function"},{"from":"src/components/ui/tooltip.tsx","to":"src/lib/utils.ts","type":"function"},{"from":"src/lib/fetch/exampleClientFetch.tsx","to":"src/lib/fetch/clientFetch.ts","type":"import"},{"from":"src/lib/fetch/exampleClientFetch.tsx","to":"src/lib/fetch/clientFetch.ts","type":"function"},{"from":"src/lib/fetch/exampleClientFetch.tsx","to":"src/actions/users.ts","type":"function"},{"from":"src/lib/fetch/exampleClientFetch.tsx","to":"test/admin.ts","type":"function"},{"from":"src/lib/fetch/exampleServerFetch.tsx","to":"src/lib/fetch/exampleClientFetch.tsx","type":"import"},{"from":"src/lib/fetch/exampleServerFetch.tsx","to":"src/lib/fetch/serverFetch.ts","type":"import"},{"from":"src/lib/fetch/exampleServerFetch.tsx","to":"src/lib/fetch/serverFetch.ts","type":"function"},{"from":"test/admin.ts","to":"src/actions/users.ts","type":"function"},{"from":"test/codemapo/codemap/bin/codemap.js","to":"test/codemapo/codemap/src/scanner.js","type":"import"},{"from":"test/codemapo/codemap/bin/codemap.js","to":"test/codemapo/codemap/src/builder.js","type":"import"}],"folders":[".","src/actions","src/app/(admin-dashboard)/admin/dashboard","src/app/(admin-dashboard)/admin","src/app/(admin-dashboard)","src/app/(common)/(auth)/login","src/app/(common)/(auth)/logout","src/app/(common)/(auth)/register","src/app/(common)/(products)/category","src/app/(common)/(products)/create-category","src/app/(common)/(products)/medicines","src/app/(common)/(products)/products","src/app/(common)/(products)/shop","src/app/(common)","src/app/(seller-dashboard)/dashboard","src/app/(seller-dashboard)","src/app/actions","src/app","src/components/admin","src/components","src/components/auth","src/components/layout/category","src/components/layout/footer","src/components/layout/navber","src/components/pages/home","src/components/pages/order","src/components/pages/products","src/components/provider","src/components/ui","src","src/hooks","src/lib","src/lib/fetch","src/schemas","test","test/codemapo/codemap/bin","test/codemapo/codemap/src"]};
+const nodes = GRAPH.nodes;
+const edges = GRAPH.edges;
+
+// ═══════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════
+let positions = {}; // id → {x, y}
+let scale = 1;
+let panX = 0, panY = 0;
+let isDragging = false;
+let dragCard = null;
+let dragOffX = 0, dragOffY = 0;
+let isPanning = false;
+let panStartX = 0, panStartY = 0;
+let panOriginX = 0, panOriginY = 0;
+let focusedId = null;
+let expandedId = null;
+let currentLayout = "force";
+let activeExts = new Set();
+let searchQuery = "";
+
+const EXT_COLORS = {
+  ".tsx": "#5bb8ff", ".ts": "#6c8aff",
+  ".jsx": "#3dd68c", ".js": "#ffd166",
+  ".mjs": "#ff9442", ".mts": "#c084fc",
+};
+
+// ═══════════════════════════════════════════════════════
+//  DOM REFS
+// ═══════════════════════════════════════════════════════
+const canvasWrap = document.getElementById("canvas-wrap");
+const canvas = document.getElementById("canvas");
+const svg = document.getElementById("arrows-svg");
+const tooltip = document.getElementById("tooltip");
+const inspector = document.getElementById("inspector");
+const extFilters = document.getElementById("ext-filters");
+const minimapCanvas = document.getElementById("minimap-canvas");
+const minimapCtx = minimapCanvas.getContext("2d");
+const minimapViewport = document.getElementById("minimap-viewport");
+
+// ═══════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════
+function init() {
+  document.getElementById("stat-files").textContent = nodes.length;
+  document.getElementById("stat-edges").textContent = edges.length;
+
+  buildExtFilters();
+  applyLayout(currentLayout);
+  renderCards();
+  renderEdges();
+  fitView();
+  updateMinimap();
+  bindEvents();
+}
+
+// ═══════════════════════════════════════════════════════
+//  EXT FILTERS
+// ═══════════════════════════════════════════════════════
+function buildExtFilters() {
+  const counts = {};
+  for (const n of nodes) {
+    counts[n.ext] = (counts[n.ext] || 0) + 1;
+    activeExts.add(n.ext);
+  }
+  extFilters.innerHTML = "";
+  for (const [ext, count] of Object.entries(counts)) {
+    const row = document.createElement("label");
+    row.className = "ext-row";
+    row.innerHTML = `
+      <input type="checkbox" checked data-ext="${ext}"/>
+      <span style="color:${EXT_COLORS[ext]||'var(--text2)'}">${ext}</span>
+      <span class="ext-count">${count}</span>
+    `;
+    row.querySelector("input").addEventListener("change", e => {
+      if (e.target.checked) activeExts.add(ext);
+      else activeExts.delete(ext);
+      renderCards();
+      renderEdges();
+      updateMinimap();
+    });
+    extFilters.appendChild(row);
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  LAYOUT ALGORITHMS
+// ═══════════════════════════════════════════════════════
+const CARD_W = 220, CARD_H = 90, GAP = 60;
+
+function applyLayout(type) {
+  currentLayout = type;
+  if (type === "grid") layoutGrid();
+  else if (type === "tree") layoutTree();
+  else layoutForce();
+}
+
+function layoutGrid() {
+  const cols = Math.ceil(Math.sqrt(nodes.length * 1.5));
+  nodes.forEach((n, i) => {
+    positions[n.id] = {
+      x: (i % cols) * (CARD_W + GAP) + 40,
+      y: Math.floor(i / cols) * (CARD_H + GAP) + 40
+    };
+  });
+}
+
+function layoutTree() {
+  // BFS from nodes with no incoming edges
+  const inDeg = {};
+  for (const n of nodes) inDeg[n.id] = 0;
+  for (const e of edges) inDeg[e.to] = (inDeg[e.to] || 0) + 1;
+  const roots = nodes.filter(n => inDeg[n.id] === 0);
+  if (roots.length === 0) { layoutGrid(); return; }
+
+  const visited = new Set();
+  const levels = [];
+  let queue = roots;
+  while (queue.length > 0) {
+    levels.push(queue);
+    const next = [];
+    for (const n of queue) {
+      visited.add(n.id);
+      const children = edges.filter(e => e.from === n.id).map(e => nodes.find(x => x.id === e.to)).filter(x => x && !visited.has(x.id));
+      next.push(...children);
+    }
+    queue = [...new Set(next)];
+  }
+  // place unvisited
+  const unvisited = nodes.filter(n => !visited.has(n.id));
+  if (unvisited.length) levels.push(unvisited);
+
+  levels.forEach((level, li) => {
+    const totalW = level.length * (CARD_W + GAP);
+    level.forEach((n, ni) => {
+      positions[n.id] = {
+        x: ni * (CARD_W + GAP) + 40,
+        y: li * (CARD_H + 120) + 40
+      };
+    });
+  });
+}
+
+function layoutForce() {
+  // Simple force-directed init
+  nodes.forEach((n, i) => {
+    const angle = (i / nodes.length) * 2 * Math.PI;
+    const r = Math.max(300, nodes.length * 40);
+    positions[n.id] = {
+      x: Math.cos(angle) * r + r + 100,
+      y: Math.sin(angle) * r + r + 100
+    };
+  });
+
+  // Run iterations
+  const adj = {};
+  for (const n of nodes) adj[n.id] = new Set();
+  for (const e of edges) { adj[e.from].add(e.to); adj[e.to].add(e.from); }
+
+  for (let iter = 0; iter < 200; iter++) {
+    const forces = {};
+    for (const n of nodes) forces[n.id] = { x: 0, y: 0 };
+
+    // Repulsion
+    for (let i = 0; i < nodes.length; i++) {
+      for (let j = i + 1; j < nodes.length; j++) {
+        const a = nodes[i], b = nodes[j];
+        const dx = positions[a.id].x - positions[b.id].x;
+        const dy = positions[a.id].y - positions[b.id].y;
+        const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+        const f = 80000 / (dist * dist);
+        forces[a.id].x += f * dx / dist;
+        forces[a.id].y += f * dy / dist;
+        forces[b.id].x -= f * dx / dist;
+        forces[b.id].y -= f * dy / dist;
+      }
+    }
+
+    // Attraction along edges
+    for (const e of edges) {
+      const a = positions[e.from], b = positions[e.to];
+      if (!a || !b) continue;
+      const dx = b.x - a.x, dy = b.y - a.y;
+      const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+      const f = (dist - 280) * 0.03;
+      forces[e.from].x += f * dx / dist;
+      forces[e.from].y += f * dy / dist;
+      forces[e.to].x -= f * dx / dist;
+      forces[e.to].y -= f * dy / dist;
+    }
+
+    const damping = 1 - iter / 200;
+    for (const n of nodes) {
+      positions[n.id].x += forces[n.id].x * damping * 0.5;
+      positions[n.id].y += forces[n.id].y * damping * 0.5;
+      positions[n.id].x = Math.max(0, positions[n.id].x);
+      positions[n.id].y = Math.max(0, positions[n.id].y);
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  RENDER CARDS
+// ═══════════════════════════════════════════════════════
+function renderCards() {
+  // Remove old cards
+  document.querySelectorAll(".card").forEach(c => c.remove());
+
+  for (const node of nodes) {
+    if (!activeExts.has(node.ext)) continue;
+    const pos = positions[node.id];
+    if (!pos) continue;
+
+    const card = document.createElement("div");
+    card.className = "card" +
+      (node.isOrphan ? " orphan" : "") +
+      (node.hasUnusedExports ? " dead-export" : "");
+    card.dataset.id = node.id;
+    card.style.left = pos.x + "px";
+    card.style.top = pos.y + "px";
+
+    const extColor = EXT_COLORS[node.ext] || "#8b93b0";
+    const importCount = edges.filter(e => e.to === node.id).length;
+    const exportCount = edges.filter(e => e.from === node.id).length;
+
+    card.innerHTML = `
+      <div class="card-header">
+        <div class="card-icon" style="background:${extColor}22;color:${extColor}">${node.ext.replace(".","").toUpperCase().slice(0,3)}</div>
+        <div>
+          <div class="card-title">${node.name}</div>
+          <div class="card-dir">${node.dir === "." ? "/" : node.dir}</div>
+        </div>
+      </div>
+      <div class="card-meta">
+        <span>${node.lines} lines</span>
+        <span>${formatSize(node.size)}</span>
+        <span>↓${importCount} ↑${exportCount}</span>
+      </div>
+      <div class="card-badges">
+        ${node.isOrphan ? '<span class="badge badge-orphan">⬡ Orphan</span>' : ""}
+        ${node.hasUnusedExports ? '<span class="badge badge-dead">⚠ Dead Export</span>' : ""}
+      </div>
+      <div class="card-expanded-body">
+        ${renderExpandedBody(node)}
+      </div>
+    `;
+
+    // Drag
+    card.addEventListener("mousedown", e => startCardDrag(e, card, node.id));
+
+    // Hover tooltip
+    card.addEventListener("mouseenter", e => showTooltip(e, node));
+    card.addEventListener("mouseleave", () => hideTooltip());
+    card.addEventListener("mousemove", e => moveTooltip(e));
+
+    // Click = focus + expand
+    card.addEventListener("click", e => {
+      e.stopPropagation();
+      handleCardClick(node.id);
+    });
+
+    canvas.appendChild(card);
+  }
+
+  applyFocusState();
+  applySearchFilter();
+}
+
+function renderExpandedBody(node) {
+  const imp = node.imports.slice(0, 8);
+  const exp = node.exports.slice(0, 8);
+  const comp = node.components.slice(0, 8);
+  return `
+    ${imp.length ? `<div class="exp-section"><div class="exp-label">Imports</div><div class="exp-items">${imp.map(i=>`<span class="exp-item">${i.split("/").pop()}</span>`).join("")}</div></div>` : ""}
+    ${exp.length ? `<div class="exp-section"><div class="exp-label">Exports</div><div class="exp-items">${exp.map(e=>`<span class="exp-item">${e}</span>`).join("")}</div></div>` : ""}
+    ${comp.length ? `<div class="exp-section"><div class="exp-label">Components</div><div class="exp-items">${comp.map(c=>`<span class="exp-item">${c}</span>`).join("")}</div></div>` : ""}
+  `;
+}
+
+function formatSize(bytes) {
+  if (bytes < 1024) return bytes + "B";
+  return (bytes / 1024).toFixed(1) + "KB";
+}
+
+// ═══════════════════════════════════════════════════════
+//  RENDER EDGES (SVG ARROWS)
+// ═══════════════════════════════════════════════════════
+const EDGE_COLORS = { import: "#ff5a6e", component: "#3dd68c", function: "#5bb8ff" };
+
+function renderEdges() {
+  svg.innerHTML = `
+    <defs>
+      <marker id="arr-import" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+        <path d="M0,0 L6,3 L0,6 Z" fill="#ff5a6e" opacity="0.8"/>
+      </marker>
+      <marker id="arr-component" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+        <path d="M0,0 L6,3 L0,6 Z" fill="#3dd68c" opacity="0.8"/>
+      </marker>
+      <marker id="arr-function" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+        <path d="M0,0 L6,3 L0,6 Z" fill="#5bb8ff" opacity="0.8"/>
+      </marker>
+    </defs>
+  `;
+
+  for (const edge of edges) {
+    const fromPos = positions[edge.from];
+    const toPos = positions[edge.to];
+    if (!fromPos || !toPos) continue;
+    if (!activeExts.has(nodes.find(n => n.id === edge.from)?.ext)) continue;
+    if (!activeExts.has(nodes.find(n => n.id === edge.to)?.ext)) continue;
+
+    const x1 = fromPos.x + CARD_W / 2, y1 = fromPos.y + CARD_H / 2;
+    const x2 = toPos.x + CARD_W / 2, y2 = toPos.y + CARD_H / 2;
+    const cx = (x1 + x2) / 2, cy = (y1 + y2) / 2 - 30;
+
+    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.setAttribute("d", `M${x1},${y1} Q${cx},${cy} ${x2},${y2}`);
+    path.setAttribute("stroke", EDGE_COLORS[edge.type]);
+    path.setAttribute("stroke-width", "1.5");
+    path.setAttribute("fill", "none");
+    path.setAttribute("opacity", "0.45");
+    path.setAttribute("marker-end", `url(#arr-${edge.type})`);
+    path.dataset.from = edge.from;
+    path.dataset.to = edge.to;
+    path.classList.add("edge-path");
+    svg.appendChild(path);
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  FOCUS / DIM
+// ═══════════════════════════════════════════════════════
+function handleCardClick(id) {
+  if (focusedId === id) {
+    // Deselect
+    focusedId = null;
+    expandedId = null;
+    clearInspector();
+  } else {
+    focusedId = id;
+    expandedId = id;
+    showInspector(nodes.find(n => n.id === id));
+  }
+  applyFocusState();
+}
+
+function applyFocusState() {
+  const cards = document.querySelectorAll(".card");
+  const edges = document.querySelectorAll(".edge-path");
+
+  if (!focusedId) {
+    cards.forEach(c => c.classList.remove("focused","dimmed"));
+    edges.forEach(e => { e.style.opacity = "0.45"; });
+    cards.forEach(c => {
+      c.classList.remove("expanded");
+    });
+    return;
+  }
+
+  const connected = new Set([focusedId]);
+  for (const e of GRAPH.edges) {
+    if (e.from === focusedId) connected.add(e.to);
+    if (e.to === focusedId) connected.add(e.from);
+  }
+
+  cards.forEach(c => {
+    const id = c.dataset.id;
+    c.classList.toggle("focused", id === focusedId);
+    c.classList.toggle("dimmed", !connected.has(id));
+    c.classList.toggle("expanded", id === expandedId);
+  });
+
+  edges.forEach(e => {
+    const visible = connected.has(e.dataset.from) && connected.has(e.dataset.to);
+    e.style.opacity = visible ? "0.75" : "0.05";
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+//  SEARCH
+// ═══════════════════════════════════════════════════════
+function applySearchFilter() {
+  const q = searchQuery.toLowerCase().trim();
+  if (!q) {
+    document.querySelectorAll(".card").forEach(c => {
+      c.style.outline = "";
+      if (!c.classList.contains("dimmed")) c.style.opacity = "";
+    });
+    return;
+  }
+  document.querySelectorAll(".card").forEach(c => {
+    const id = c.dataset.id;
+    const match = id.toLowerCase().includes(q);
+    c.style.outline = match ? "2px solid var(--accent)" : "";
+    c.style.opacity = match ? "1" : "0.15";
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+//  INSPECTOR PANEL
+// ═══════════════════════════════════════════════════════
+function showInspector(node) {
+  if (!node) return;
+  const importCount = GRAPH.edges.filter(e => e.to === node.id).length;
+  const exportCount = GRAPH.edges.filter(e => e.from === node.id).length;
+  inspector.innerHTML = `
+    <div class="insp-filename">${node.name}</div>
+    <div class="insp-path">${node.relativePath}</div>
+    <div class="insp-row"><span>Lines</span><b>${node.lines}</b></div>
+    <div class="insp-row"><span>Size</span><b>${formatSize(node.size)}</b></div>
+    <div class="insp-row"><span>Imported by</span><b>${importCount}</b></div>
+    <div class="insp-row"><span>Imports</span><b>${exportCount}</b></div>
+    <div class="insp-row"><span>Orphan</span><b>${node.isOrphan ? "Yes ⬡" : "No"}</b></div>
+    <div class="insp-row"><span>Dead exports</span><b>${node.hasUnusedExports ? "Yes ⚠" : "No"}</b></div>
+    ${node.imports.length ? `
+      <div class="insp-section-label">Imports</div>
+      <div class="insp-list">${node.imports.map(i => `<span class="insp-tag red">${i.split("/").pop()}</span>`).join("")}</div>
+    ` : ""}
+    ${node.exports.length ? `
+      <div class="insp-section-label">Exports</div>
+      <div class="insp-list">${node.exports.map(e => `<span class="insp-tag green">${e}</span>`).join("")}</div>
+    ` : ""}
+    ${node.components.length ? `
+      <div class="insp-section-label">Components Used</div>
+      <div class="insp-list">${node.components.slice(0,12).map(c => `<span class="insp-tag blue">${c}</span>`).join("")}</div>
+    ` : ""}
+  `;
+}
+
+function clearInspector() {
+  inspector.innerHTML = `<div id="inspector-placeholder">Click a card to inspect it</div>`;
+}
+
+// ═══════════════════════════════════════════════════════
+//  TOOLTIP
+// ═══════════════════════════════════════════════════════
+function showTooltip(e, node) {
+  const importCount = GRAPH.edges.filter(e => e.to === node.id).length;
+  const exportCount = GRAPH.edges.filter(e => e.from === node.id).length;
+  tooltip.innerHTML = `
+    <div class="tt-name">${node.name}</div>
+    <div class="tt-row"><span>Lines</span><b>${node.lines}</b></div>
+    <div class="tt-row"><span>Size</span><b>${formatSize(node.size)}</b></div>
+    <div class="tt-row"><span>Imports</span><b>${node.imports.length}</b></div>
+    <div class="tt-row"><span>Exports</span><b>${node.exports.length}</b></div>
+    <div class="tt-row"><span>Connected by</span><b>${importCount} files</b></div>
+    <div class="tt-row"><span>Connects to</span><b>${exportCount} files</b></div>
+  `;
+  tooltip.style.display = "block";
+  moveTooltip(e);
+}
+
+function moveTooltip(e) {
+  let x = e.clientX + 14, y = e.clientY + 14;
+  if (x + 230 > window.innerWidth) x = e.clientX - 234;
+  if (y + 180 > window.innerHeight) y = e.clientY - 184;
+  tooltip.style.left = x + "px";
+  tooltip.style.top = y + "px";
+}
+
+function hideTooltip() { tooltip.style.display = "none"; }
+
+// ═══════════════════════════════════════════════════════
+//  PAN & ZOOM
+// ═══════════════════════════════════════════════════════
+function setTransform() {
+  canvas.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
+  updateMinimapViewport();
+}
+
+function fitView() {
+  if (nodes.length === 0) return;
+  const xs = nodes.map(n => positions[n.id]?.x || 0);
+  const ys = nodes.map(n => positions[n.id]?.y || 0);
+  const minX = Math.min(...xs), maxX = Math.max(...xs) + CARD_W;
+  const minY = Math.min(...ys), maxY = Math.max(...ys) + CARD_H;
+  const contentW = maxX - minX + 80, contentH = maxY - minY + 80;
+  const ww = canvasWrap.clientWidth, wh = canvasWrap.clientHeight;
+  scale = Math.min(ww / contentW, wh / contentH, 1);
+  panX = (ww - contentW * scale) / 2 - minX * scale + 40 * scale;
+  panY = (wh - contentH * scale) / 2 - minY * scale + 40 * scale;
+  setTransform();
+}
+
+canvasWrap.addEventListener("wheel", e => {
+  e.preventDefault();
+  const rect = canvasWrap.getBoundingClientRect();
+  const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+  const delta = e.deltaY < 0 ? 1.1 : 0.9;
+  const newScale = Math.min(Math.max(scale * delta, 0.08), 4);
+  panX = mx - (mx - panX) * (newScale / scale);
+  panY = my - (my - panY) * (newScale / scale);
+  scale = newScale;
+  setTransform();
+}, { passive: false });
+
+canvasWrap.addEventListener("mousedown", e => {
+  if (e.target === canvasWrap || e.target === canvas || e.target === svg) {
+    isPanning = true;
+    panStartX = e.clientX;
+    panStartY = e.clientY;
+    panOriginX = panX;
+    panOriginY = panY;
+    canvasWrap.classList.add("grabbing");
+
+    // Click on canvas bg = deselect
+    if (e.target === canvasWrap || e.target === canvas) {
+      focusedId = null;
+      expandedId = null;
+      clearInspector();
+      applyFocusState();
+    }
+  }
+});
+
+document.addEventListener("mousemove", e => {
+  if (isPanning) {
+    panX = panOriginX + (e.clientX - panStartX);
+    panY = panOriginY + (e.clientY - panStartY);
+    setTransform();
+  }
+  if (dragCard) {
+    const rect = canvasWrap.getBoundingClientRect();
+    const mx = (e.clientX - rect.left - panX) / scale;
+    const my = (e.clientY - rect.top - panY) / scale;
+    const nx = mx - dragOffX, ny = my - dragOffY;
+    positions[dragCard] = { x: nx, y: ny };
+    document.querySelector(`.card[data-id="${CSS.escape(dragCard)}"]`).style.left = nx + "px";
+    document.querySelector(`.card[data-id="${CSS.escape(dragCard)}"]`).style.top = ny + "px";
+    renderEdges();
+    updateMinimap();
+  }
+});
+
+document.addEventListener("mouseup", () => {
+  isPanning = false;
+  dragCard = null;
+  canvasWrap.classList.remove("grabbing");
+});
+
+function startCardDrag(e, card, id) {
+  e.stopPropagation();
+  dragCard = id;
+  const rect = canvasWrap.getBoundingClientRect();
+  const mx = (e.clientX - rect.left - panX) / scale;
+  const my = (e.clientY - rect.top - panY) / scale;
+  dragOffX = mx - positions[id].x;
+  dragOffY = my - positions[id].y;
+}
+
+// ═══════════════════════════════════════════════════════
+//  MINIMAP
+// ═══════════════════════════════════════════════════════
+function updateMinimap() {
+  const MW = 180, MH = 120;
+  minimapCtx.clearRect(0, 0, MW, MH);
+
+  if (nodes.length === 0) return;
+  const xs = nodes.map(n => positions[n.id]?.x || 0);
+  const ys = nodes.map(n => positions[n.id]?.y || 0);
+  const minX = Math.min(...xs) - 20, maxX = Math.max(...xs) + CARD_W + 20;
+  const minY = Math.min(...ys) - 20, maxY = Math.max(...ys) + CARD_H + 20;
+  const contentW = maxX - minX, contentH = maxY - minY;
+  const scaleX = MW / contentW, scaleY = MH / contentH;
+  const ms = Math.min(scaleX, scaleY) * 0.9;
+
+  // Draw edges
+  for (const edge of GRAPH.edges) {
+    const fp = positions[edge.from], tp = positions[edge.to];
+    if (!fp || !tp) continue;
+    const color = { import: "#ff5a6e", component: "#3dd68c", function: "#5bb8ff" }[edge.type];
+    minimapCtx.beginPath();
+    minimapCtx.strokeStyle = color;
+    minimapCtx.globalAlpha = 0.3;
+    minimapCtx.lineWidth = 0.5;
+    minimapCtx.moveTo((fp.x - minX) * ms + 5, (fp.y - minY) * ms + 5);
+    minimapCtx.lineTo((tp.x - minX) * ms + 5, (tp.y - minY) * ms + 5);
+    minimapCtx.stroke();
+  }
+
+  // Draw nodes
+  minimapCtx.globalAlpha = 1;
+  for (const node of nodes) {
+    if (!activeExts.has(node.ext)) continue;
+    const p = positions[node.id];
+    if (!p) continue;
+    const x = (p.x - minX) * ms + 5;
+    const y = (p.y - minY) * ms + 5;
+    const w = Math.max(CARD_W * ms, 3), h = Math.max(CARD_H * ms, 2);
+    const color = EXT_COLORS[node.ext] || "#8b93b0";
+    minimapCtx.fillStyle = color + "55";
+    minimapCtx.strokeStyle = color + "99";
+    minimapCtx.lineWidth = 0.5;
+    minimapCtx.beginPath();
+    minimapCtx.roundRect(x, y, w, h, 1);
+    minimapCtx.fill();
+    minimapCtx.stroke();
+  }
+
+  // Store minimap transform for viewport
+  minimapCtx._minX = minX; minimapCtx._minY = minY; minimapCtx._ms = ms;
+  updateMinimapViewport();
+}
+
+function updateMinimapViewport() {
+  const ms = minimapCtx._ms || 1;
+  const minX = minimapCtx._minX || 0, minY = minimapCtx._minY || 0;
+  if (!ms) return;
+  const ww = canvasWrap.clientWidth, wh = canvasWrap.clientHeight;
+  const vx = (-panX / scale - minX) * ms + 5;
+  const vy = (-panY / scale - minY) * ms + 5;
+  const vw = (ww / scale) * ms;
+  const vh = (wh / scale) * ms;
+  minimapViewport.style.left = Math.max(0, vx) + "px";
+  minimapViewport.style.top = Math.max(0, vy) + "px";
+  minimapViewport.style.width = Math.min(vw, 178) + "px";
+  minimapViewport.style.height = Math.min(vh, 118) + "px";
+}
+
+// ═══════════════════════════════════════════════════════
+//  EXPORT
+// ═══════════════════════════════════════════════════════
+function exportPNG() {
+  const cs = getComputedStyle(document.documentElement);
+  const html2canvas = () => {
+    document.getElementById("status-msg").textContent = "Exporting PNG…";
+    setTimeout(() => {
+      const rect = canvas.getBoundingClientRect();
+      const dataUrl = "data:text/plain,PNG export requires html2canvas library. Save the HTML file and open in browser.";
+      document.getElementById("status-msg").textContent = "Use browser Print → Save as PDF or screenshot for now.";
+    }, 100);
+  };
+
+  // Fallback: serialize SVG
+  const svgEl = buildExportSVG();
+  const blob = new Blob([svgEl], { type: "image/svg+xml" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "codemap.svg";
+  a.click();
+  document.getElementById("status-msg").textContent = "Exported SVG";
+}
+
+function exportSVG() {
+  const svgEl = buildExportSVG();
+  const blob = new Blob([svgEl], { type: "image/svg+xml" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "codemap.svg";
+  a.click();
+  document.getElementById("status-msg").textContent = "Exported SVG ✓";
+}
+
+function buildExportSVG() {
+  const padding = 60;
+  const xs = nodes.map(n => positions[n.id]?.x || 0);
+  const ys = nodes.map(n => positions[n.id]?.y || 0);
+  const minX = Math.min(...xs) - padding, minY = Math.min(...ys) - padding;
+  const maxX = Math.max(...xs) + CARD_W + padding, maxY = Math.max(...ys) + CARD_H + padding;
+  const W = maxX - minX, H = maxY - minY;
+
+  let out = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${minX} ${minY} ${W} ${H}" width="${W}" height="${H}" style="background:#0d0f14;font-family:Inter,system-ui,sans-serif">`;
+  out += `<defs>
+    <marker id="a-i" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#ff5a6e"/></marker>
+    <marker id="a-c" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#3dd68c"/></marker>
+    <marker id="a-f" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#5bb8ff"/></marker>
+  </defs>`;
+
+  // Edges
+  for (const edge of GRAPH.edges) {
+    const fp = positions[edge.from], tp = positions[edge.to];
+    if (!fp || !tp) continue;
+    const x1 = fp.x + CARD_W/2, y1 = fp.y + CARD_H/2;
+    const x2 = tp.x + CARD_W/2, y2 = tp.y + CARD_H/2;
+    const cx = (x1+x2)/2, cy = (y1+y2)/2-30;
+    const color = { import:"#ff5a6e", component:"#3dd68c", function:"#5bb8ff" }[edge.type];
+    const mark = { import:"a-i", component:"a-c", function:"a-f" }[edge.type];
+    out += `<path d="M${x1},${y1} Q${cx},${cy} ${x2},${y2}" stroke="${color}" stroke-width="1.5" fill="none" opacity="0.45" marker-end="url(#${mark})"/>`;
+  }
+
+  // Cards
+  for (const node of nodes) {
+    const p = positions[node.id]; if (!p) continue;
+    const color = EXT_COLORS[node.ext] || "#8b93b0";
+    out += `<rect x="${p.x}" y="${p.y}" width="${CARD_W}" height="${CARD_H}" rx="10" fill="#13161e" stroke="${node.isOrphan?"#ff9442":node.hasUnusedExports?"#ffca3a":"#2a2f42"}" stroke-width="1"/>`;
+    out += `<rect x="${p.x+10}" y="${p.y+10}" width="26" height="26" rx="6" fill="${color}22"/>`;
+    out += `<text x="${p.x+23}" y="${p.y+27}" fill="${color}" font-size="9" font-weight="700" text-anchor="middle" font-family="monospace">${node.ext.replace(".","").toUpperCase().slice(0,3)}</text>`;
+    out += `<text x="${p.x+44}" y="${p.y+24}" fill="#e2e6f3" font-size="12" font-weight="600">${node.name}</text>`;
+    out += `<text x="${p.x+44}" y="${p.y+37}" fill="#555f7a" font-size="10">${node.dir === "." ? "/" : node.dir}</text>`;
+    out += `<text x="${p.x+12}" y="${p.y+68}" fill="#555f7a" font-size="10">${node.lines} lines · ${formatSize(node.size)}</text>`;
+    if (node.isOrphan) out += `<text x="${p.x+12}" y="${p.y+82}" fill="#ff9442" font-size="9" font-weight="600">⬡ Orphan</text>`;
+    if (node.hasUnusedExports) out += `<text x="${p.x+60}" y="${p.y+82}" fill="#ffca3a" font-size="9" font-weight="600">⚠ Dead Export</text>`;
+  }
+
+  out += "</svg>";
+  return out;
+}
+
+// ═══════════════════════════════════════════════════════
+//  EVENTS
+// ═══════════════════════════════════════════════════════
+function bindEvents() {
+  // Search
+  document.getElementById("search").addEventListener("input", e => {
+    searchQuery = e.target.value;
+    applySearchFilter();
+  });
+
+  // Layout buttons
+  document.querySelectorAll("[data-layout]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll("[data-layout]").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      document.getElementById("status-msg").textContent = "Applying layout…";
+      setTimeout(() => {
+        applyLayout(btn.dataset.layout);
+        renderCards();
+        renderEdges();
+        fitView();
+        updateMinimap();
+        document.getElementById("status-msg").textContent = btn.dataset.layout + " layout";
+      }, 10);
+    });
+  });
+
+  // Sidebar toggle
+  document.getElementById("btn-sidebar").addEventListener("click", () => {
+    document.getElementById("sidebar").classList.toggle("collapsed");
+  });
+
+  // Reset view
+  document.getElementById("btn-reset").addEventListener("click", () => {
+    fitView();
+    document.getElementById("status-msg").textContent = "View reset";
+  });
+
+  // Export
+  document.getElementById("btn-export-png").addEventListener("click", exportPNG);
+  document.getElementById("btn-export-svg").addEventListener("click", exportSVG);
+
+  // Canvas click deselect
+  canvasWrap.addEventListener("click", e => {
+    if (e.target === canvasWrap || e.target === canvas || e.target === svg) {
+      focusedId = null;
+      expandedId = null;
+      clearInspector();
+      applyFocusState();
+      applySearchFilter();
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+//  START
+// ═══════════════════════════════════════════════════════
+window.addEventListener("load", init);
+</script>
+</body>
+</html>
