@@ -1,12 +1,13 @@
+/* eslint-disable react/no-unescaped-entities */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// components/auth/signin-form.tsx
-"use client";
 
+
+"use client";
 import { useForm } from "@tanstack/react-form";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import * as z from "zod";
-
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -18,7 +19,6 @@ import {
 } from "@/components/ui/card";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import Link from "next/link";
 import { env } from "@/env";
 
 
@@ -33,44 +33,7 @@ const formSchema = z.object({
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
-// ================================
-// Auth Client
-// ================================
 
-export const authClient = {
-  signIn: {
-    email: async ({ email, password }: { email: string; password: string }) => {
-      try {
-        const response = await fetch(
-          `${env.NEXT_PUBLIC_BACKEND_URL}/api/auth/sign-in/email`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, password }),
-            credentials: "include",
-          },
-        );
-        const text = await response.text();
-        let data: any = {};
-        try {
-          data = JSON.parse(text);
-        } catch {
-          console.error("Response is not JSON:", text);
-        }
-
-        if (!response.ok) return { data: null, error: data };
-        return { data, error: null };
-      } catch (error: any) {
-        console.error("Fetch error:", error);
-        return { data: null, error };
-      }
-    },
-  },
-};
-
-// ================================
-// SignInForm Component
-// ================================
 
 export function SignInForm() {
   const router = useRouter();
@@ -85,24 +48,34 @@ export function SignInForm() {
     },
     onSubmit: async ({ value, formApi }) => {
       try {
-        const res = await authClient.signIn.email({
-          email: value.email,
-          password: value.password,
-        });
+        const response = await fetch(
+          `${env.NEXT_PUBLIC_BACKEND_URL}/api/auth/sign-in/email`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(value),
+            credentials: "include",
+          },
+        );
 
-        if (res.error || !res.data) {
-          throw new Error(res.error?.message || "Invalid email or password");
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || "Invalid email or password");
         }
 
-        const user: any = res.data.user;
-        console.log("Logged in user:", user);
+        const user = data.user;
+        localStorage.setItem("user", JSON.stringify(user));
         toast.success("Login successful!");
         formApi.reset();
-        console.log(user.role);
 
-        if (user?.role === "ADMIN") router.push("/admin");
-        else if (user?.role === "SELLER") router.push("/dashboard");
-        else router.push("/");
+        if (user?.role === "ADMIN") {
+          router.push("/admin");
+        } else if (user?.role === "SELLER") {
+          router.push("/dashboard");
+        } else {
+          router.push("/");
+        }
 
         router.refresh();
       } catch (error: any) {
@@ -115,7 +88,7 @@ export function SignInForm() {
 
 
   return (
-    <Card className="w-full max-w-md mx-auto mt-10">
+    <Card className="w-full max-w-md mx-auto mt-10 shadow-lg ">
       <CardHeader>
         <CardTitle>Sign In</CardTitle>
         <CardDescription>
@@ -128,15 +101,12 @@ export function SignInForm() {
           id="signin-form"
           onSubmit={(e) => {
             e.preventDefault();
-            e.stopPropagation();
             form.handleSubmit();
           }}
           className="space-y-4"
         >
-          {/* Email */}
-          <form.Field
-            name="email"
-            children={(field) => {
+          <form.Field name="email">
+            {(field) => {
               const isInvalid =
                 field.state.meta.isTouched && !field.state.meta.isValid;
               return (
@@ -144,24 +114,20 @@ export function SignInForm() {
                   <FieldLabel htmlFor={field.name}>Email</FieldLabel>
                   <Input
                     id={field.name}
-                    name={field.name}
                     type="email"
                     value={field.state.value}
                     onChange={(e) => field.handleChange(e.target.value)}
-                    aria-invalid={isInvalid}
                     placeholder="you@example.com"
-                    autoComplete="email"
+
                   />
                   {isInvalid && <FieldError errors={field.state.meta.errors} />}
                 </Field>
               );
             }}
-          />
+          </form.Field>
 
-          {/* Password */}
-          <form.Field
-            name="password"
-            children={(field) => {
+          <form.Field name="password">
+            {(field) => {
               const isInvalid =
                 field.state.meta.isTouched && !field.state.meta.isValid;
               return (
@@ -169,50 +135,43 @@ export function SignInForm() {
                   <FieldLabel htmlFor={field.name}>Password</FieldLabel>
                   <Input
                     id={field.name}
-                    name={field.name}
                     type="password"
                     value={field.state.value}
                     onChange={(e) => field.handleChange(e.target.value)}
-                    aria-invalid={isInvalid}
                     placeholder="********"
-                    autoComplete="current-password"
+
                   />
                   {isInvalid && <FieldError errors={field.state.meta.errors} />}
                 </Field>
               );
             }}
-          />
+          </form.Field>
 
-          {/* Forgot Password */}
+
           <div className="text-right">
-            <Link
-              href="/forgot-password"
-              className="text-sm text-primary hover:underline"
+
+            <Button
+              variant="link"
+              size="sm"
+              asChild
+              className="text-primary hover:underline px-0"
             >
-              Forgot password?
-            </Link>
+              <Link href="/forgot-password">Forgot password?</Link>
+            </Button>
           </div>
 
-          {/* Submit Button */}
+
           <Button type="submit" form="signin-form" className="w-full">
             Sign In
           </Button>
 
-          {/* Divider */}
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground"></span>
-            </div>
-          </div>
+
         </form>
       </CardContent>
 
-      <CardFooter className="flex justify-center">
+      <CardFooter className="flex justify-center border-t pt-4">
         <p className="text-sm text-muted-foreground">
-          Do not have an account?{" "}
+          Don't have an account?{" "}
           <Link href="/register" className="text-primary hover:underline">
             Sign up
           </Link>

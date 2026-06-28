@@ -1,9 +1,9 @@
 "use client";
-import { RegisterForm } from "@/components/auth/signup-form";
+import { RegisterForm } from "@/components/layout/auth/signup-form";
 export default function SignupPage() {
   return (
     <>
       <RegisterForm />
     </>
   );
-}
+} 
