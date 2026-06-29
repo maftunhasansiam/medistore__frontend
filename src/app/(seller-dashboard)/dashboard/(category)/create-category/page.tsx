@@ -1,4 +1,4 @@
-import { CreateCategoryForm } from "@/components/layout/category/createCategory";
+import { CreateCategoryForm } from "@/components/layout/category/createCategoryForm";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";

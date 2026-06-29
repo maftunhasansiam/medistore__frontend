@@ -4,9 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Plus, LayoutDashboardIcon } from "lucide-react";
 import Link from "next/link";
 import CategoryList from "./CategoryList";
+import { serverFetch } from "@/lib/fetch/serverFetch";
+
+
+
 
 const ViewAllCategory = async () => {
-  const { data, error } = await clientFetch("/api/categories", {
+  const { data, error } = await serverFetch("/api/categories", {
     method: "GET",
     cache: "no-store",
   });

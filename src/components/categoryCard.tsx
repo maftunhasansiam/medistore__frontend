@@ -5,7 +5,7 @@ import Image from "next/image";
 
 const CategoryCard = ({ category }: { category: any }) => {
   const data: any = category.data;
-  console.log(data);
+
 
   return (
     <div className="flex min-h-sm items-center justify-center py-12">

@@ -1,4 +1,4 @@
-import CategoryCard from "@/components/pages/home/category";
+import CategoryCard from "@/components/categoryCard";
 import { serverFetch } from "@/lib/fetch/serverFetch";
 
 

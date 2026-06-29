@@ -1,5 +1,6 @@
+import { UpdateCategoryForm } from "@/components/layout/category/updateCategoryForm";
 
-import { UpdateCategoryForm } from "@/components/layout/category/updateCategory";
+
 
 interface PageProps {
   params: Promise<{ id: string }>;
