@@ -1,10 +1,8 @@
 import * as React from "react";
 import { NavMain } from "@/components/nav-main";
-import { SidebarOptInForm } from "@/components/sidebar-opt-in-form";
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -18,87 +16,89 @@ import { HeartPulseIcon } from "lucide-react";
 // This is sample data.
 const data = {
   navMain: [
+
+    // ------------------------
+    // Categories (Seller can create/update/delete)
+    // ------------------------
+
     {
       title: "Category",
-      url: "/dashboard/create-category",
+      url: "/dashboard/category",
       items: [
         {
-          title: "create-category",
-          url: "/dashboard/create-category",
-        },
-        {
-          title: "All Categories",
+          title: "All Category",
           url: "/dashboard/category",
         },
       ],
     },
+
+    // ------------------------
+    // Medicines (Seller inventory)
+    // ------------------------
+
     {
-      title: "Medicine ",
-      url: "/dashboard/create-medicine",
+      title: "Medicine",
+      url: "/dashboard/medicines",
       items: [
         {
-          title: "create Medicine",
-          url: "/dashboard/create-medicine",
+          title: "All Medicines",
+          url: "/dashboard/medicines",
         },
         {
-          title: "All Medicine",
-          url: "/dashboard/medicines",  
+          title: "Stock Management",
+          url: "/dashboard/medicines/stock",
         },
       ],
     },
+
+    // ------------------------
+    // Orders (Seller can view incoming orders and their status)
+    // ------------------------
+
     {
-      title: "API Reference",
-      url: "#",
+      title: "Orders",
+      url: "/dashboard/orders",
       items: [
         {
-          title: "Components",
-          url: "#",
+          title: "Incoming Orders",
+          url: "/dashboard/orders",
         },
         {
-          title: "File Conventions",
-          url: "#",
-        },
-        {
-          title: "Functions",
-          url: "#",
-        },
-        {
-          title: "next.config.js Options",
-          url: "#",
-        },
-        {
-          title: "CLI",
-          url: "#",
-        },
-        {
-          title: "Edge Runtime",
-          url: "#",
+          title: "Order Status",
+          url: "/dashboard/orders/status",
         },
       ],
     },
+
+    // ------------------------
+    // Reviews (seller can view reviews of their medicines)
+    // ------------------------
+
     {
-      title: "Architecture",
-      url: "#",
+      title: "Reviews",
+      url: "/dashboard/reviews",
       items: [
         {
-          title: "Accessibility",
-          url: "#",
+          title: "All Reviews",
+          url: "/dashboard/reviews",
+        },
+      ],
+    },
+
+    // ------------------------
+    // Seller Profile
+    // ------------------------
+    {
+      title: "Seller Profile",
+      url: "/dashboard/seller/profile",
+      items: [
+        {
+          title: "My Profile",
+          url: "/dashboard/seller/profile",
         },
         {
-          title: "Fast Refresh",
-          url: "#",
-        },
-        {
-          title: "Next.js Compiler",
-          url: "#",
-        },
-        {
-          title: "Supported Browsers",
-          url: "#",
-        },
-        {
-          title: "Turbopack",
-          url: "#",
+          title: "Edit Profile",
+          url: "/dashboard/seller/profile/edit",
         },
       ],
     },
@@ -128,11 +128,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent>
         <NavMain items={data.navMain} />
       </SidebarContent>
-      <SidebarFooter>
-        <div className="p-1">
-          <SidebarOptInForm />
-        </div>
-      </SidebarFooter>
       <SidebarRail />
     </Sidebar>
   );

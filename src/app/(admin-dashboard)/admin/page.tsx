@@ -4,6 +4,7 @@ import { serverFetch } from "@/lib/fetch/serverFetch";
 import { UsersSummaryCard } from "./dashboard/components/UsersSummaryCard";
 import { OrdersSummaryCard } from "./dashboard/components/OrdersSummaryCard";
 import { CategoriesSummaryCard } from "./dashboard/components/CategoriesSummaryCard";
+import { MedicinesSummaryCard } from "./dashboard/components/MedicinesSummaryCard";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
@@ -29,7 +30,7 @@ const AdminPage = async () => {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <UsersSummaryCard total={totalUsers} />
         <OrdersSummaryCard total={totalOrders} />
-        <CategoriesSummaryCard total={totalMedicines} />
+        <MedicinesSummaryCard total={totalMedicines} />
         <CategoriesSummaryCard total={totalCategories} />
       </div>
 

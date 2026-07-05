@@ -1,7 +1,7 @@
 import * as React from "react";
 
 import { NavMain } from "@/components/nav-main";
-import { SidebarOptInForm } from "@/components/sidebar-opt-in-form";
+
 import {
   Sidebar,
   SidebarContent,
@@ -70,11 +70,7 @@ export function AdminAppSidebar({
       <SidebarContent>
         <NavMain items={data.navMain} />
       </SidebarContent>
-      <SidebarFooter>
-        <div className="p-1">
-          <SidebarOptInForm />
-        </div>
-      </SidebarFooter>
+      <SidebarFooter></SidebarFooter>
       <SidebarRail />
     </Sidebar>
   );
