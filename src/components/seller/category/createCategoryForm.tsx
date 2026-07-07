@@ -34,9 +34,7 @@ import {
 } from "@/components/ui/input-group";
 import { Loader2 } from "lucide-react";
 
-// -------------------
-// Zod Schema
-// -------------------
+
 const categorySchema = z.object({
   name: z
     .string()
@@ -57,9 +55,6 @@ const categorySchema = z.object({
 
 type CategoryFormValues = z.infer<typeof categorySchema>;
 
-// -------------------
-// Component
-// -------------------
 
 export function CreateCategoryForm() {
   const router = useRouter();

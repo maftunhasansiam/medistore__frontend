@@ -19,7 +19,7 @@ type CategoriesApiResponse = {
 };
 
 
-export default function AdminCategoriesPage() {
+export default function SellerCategoriesPage() {
   const [items, setItems] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const total = useMemo(() => items.length, [items]);
